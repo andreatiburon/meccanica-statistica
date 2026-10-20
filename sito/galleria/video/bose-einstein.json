@@ -1,0 +1,14 @@
+{
+ "titolo": "Condensazione di Bose-Einstein",
+ "durata": 14.067,
+ "passi": [
+  {
+   "t": 0.0,
+   "testo": "1000 bosoni in una scatola 3D. A sinistra la distribuzione degli impulsi: ogni punto è una particella. Sopra T_c è una nuvola termica che si stringe raffreddando."
+  },
+  {
+   "t": 6.1,
+   "testo": "Sotto T_c le particelle in eccesso si accumulano nello stato fondamentale, a impulso quasi nullo: il picco dorato al centro. La curva bianca è il calcolo esatto a N = 1000, quella gialla il limite termodinamico."
+  }
+ ]
+}

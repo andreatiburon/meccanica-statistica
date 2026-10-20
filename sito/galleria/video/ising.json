@@ -1,0 +1,18 @@
+{
+ "titolo": "Ising 2D attraverso la temperatura critica",
+ "durata": 16.933,
+ "passi": [
+  {
+   "t": 0.0,
+   "testo": "Un reticolo di 96 × 96 spin, arancio su e blu giù, aggiornato con l'algoritmo di Metropolis. Ad alta temperatura gli spin sono disordinati e la magnetizzazione |m| fluttua attorno a zero."
+  },
+  {
+   "t": 5.667,
+   "testo": "Avvicinandosi a T_c = 2,269 compaiono isole di spin allineati di ogni dimensione: le fluttuazioni sono correlate su distanze sempre più grandi."
+  },
+  {
+   "t": 10.333,
+   "testo": "Sotto T_c i domini crescono e si ordinano. La curva gialla è la magnetizzazione esatta di Onsager, |m| = (1 − sinh⁻⁴(2J/k_BT))^{1/8}, che ogni dominio raggiunge al suo interno."
+  }
+ ]
+}

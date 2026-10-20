@@ -6,8 +6,14 @@ Rendering (Manim Community, senza LaTeX):
 Ogni scena simula davvero il sistema con numpy e poi lo anima: le curve
 teoriche sono sovrapposte ai dati simulati, non al posto loro.
 """
+import sys
+from pathlib import Path
+
 import numpy as np
-from manim import *
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from comune import Lezione  # noqa: E402
+from manim import *  # noqa: E402
 
 # Palette comune: inchiostro blu notte, freddo -> caldo come una scala di temperatura.
 FONDO = "#0B1020"
@@ -16,7 +22,7 @@ TENUE = "#7D8597"
 FREDDO = "#4C7BD9"
 CALDO = "#E8834A"
 ORO = "#F2C14E"
-SERIF = "Bitstream Charter"
+SERIF = "Spectral"
 MONO = "JetBrains Mono"
 
 config.background_color = FONDO
@@ -80,7 +86,10 @@ def simula_gas(n=220, r=0.011, dt=0.0025, frame=360, sotto=4, seme=1):
     return np.array(storia_p), np.array(storia_v)
 
 
-class GasMaxwell(Scene):
+class GasMaxwell(Lezione):
+    USCITA = "gas-maxwell"
+    TITOLO = "Termalizzazione di un gas"
+
     def construct(self):
         P, V = simula_gas()
         F = len(P)
@@ -146,8 +155,15 @@ class GasMaxwell(Scene):
         aggiorna_orologio(orologio)
 
         self.add(scatola, punti, assi, lx, ly, tacche, barre, orologio)
+        self.passo("220 dischi rigidi in una scatola, tutti con la stessa velocità e direzioni a caso: l'istogramma delle "
+                   "velocità è un picco solo. Il colore va dal blu per i lenti all'arancio per i veloci.")
         self.wait(0.6)
-        self.play(f.animate.set_value(F * 0.55), run_time=7, rate_func=linear)
+        self.play(f.animate.set_value(F * 0.25), run_time=3.2, rate_func=linear)
+        self.passo("Gli urti elastici conservano l'energia totale ma la redistribuiscono: alcuni dischi rallentano, altri "
+                   "accelerano, e l'istogramma si allarga.")
+        self.play(f.animate.set_value(F * 0.55), run_time=3.8, rate_func=linear)
+        self.passo("Dopo una decina di urti per particella la distribuzione smette di cambiare: è quella di Maxwell-Boltzmann "
+                   "in due dimensioni, f(v) = (2v/⟨v²⟩)e^{−v²/⟨v²⟩}, con ⟨v²⟩ fissato dall'energia iniziale.")
         self.play(Create(mb), FadeIn(mb_nome), f.animate.set_value(F - 1), run_time=5, rate_func=linear)
         for m in (punti, barre, orologio):
             m.clear_updaters()
@@ -181,7 +197,10 @@ def simula_ising(L=96, frame=330, passi=6, t0=3.6, t1=1.5, seme=3):
     return np.array(reticoli), T, np.array(magn)
 
 
-class IsingRaffreddamento(Scene):
+class IsingRaffreddamento(Lezione):
+    USCITA = "ising"
+    TITOLO = "Ising 2D attraverso la temperatura critica"
+
     def construct(self):
         S, T, M = simula_ising()
         F = len(S)
@@ -231,8 +250,18 @@ class IsingRaffreddamento(Scene):
             f"T = {T[int(f.get_value())]:.2f}   |m| = {M[int(f.get_value())]:.2f}", 16).next_to(cornice, DOWN, buff=0.2))
 
         self.add(immagine, cornice, assi, lx, ly, tacche, tc, tc_nome, onsager, onsager_nome, traccia, punto, lettura)
+        k1 = int(np.argmax(T < TC_ISING + 0.12))
+        k2 = int(np.argmax(T < TC_ISING - 0.25))
+        self.passo("Un reticolo di 96 × 96 spin, arancio su e blu giù, aggiornato con l'algoritmo di Metropolis. "
+                   "Ad alta temperatura gli spin sono disordinati e la magnetizzazione |m| fluttua attorno a zero.")
         self.wait(0.6)
-        self.play(f.animate.set_value(F - 1), run_time=13, rate_func=linear)
+        self.play(f.animate.set_value(k1), run_time=13 * k1 / F, rate_func=linear)
+        self.passo("Avvicinandosi a T_c = 2,269 compaiono isole di spin allineati di ogni dimensione: "
+                   "le fluttuazioni sono correlate su distanze sempre più grandi.")
+        self.play(f.animate.set_value(k2), run_time=13 * (k2 - k1) / F, rate_func=linear)
+        self.passo("Sotto T_c i domini crescono e si ordinano. La curva gialla è la magnetizzazione esatta di Onsager, "
+                   "|m| = (1 − sinh⁻⁴(2J/k_BT))^{1/8}, che ogni dominio raggiunge al suo interno.")
+        self.play(f.animate.set_value(F - 1), run_time=13 * (F - 1 - k2) / F, rate_func=linear)
         immagine.clear_updaters()
         if M[-1] < 0.8:
             nota = Text("Raffreddando in fretta restano domini opposti:\n"
@@ -266,7 +295,10 @@ def frazione_condensata(N=1000, M=48, temperature=None):
     return np.array(frazioni)
 
 
-class CondensazioneBE(Scene):
+class CondensazioneBE(Lezione):
+    USCITA = "bose-einstein"
+    TITOLO = "Condensazione di Bose-Einstein"
+
     def construct(self):
         N = 1000
         Tc = (N / (np.pi / 4 * 0.886227 * 2.612375)) ** (2 / 3)
@@ -331,8 +363,14 @@ class CondensazioneBE(Scene):
 
         self.add(riquadro, assi_p, px, py, nuvola, assi, lx, ly, tacche, teoria, teoria_nome, esatta_nome,
                  traccia, punto, lettura)
+        kc = int(np.argmax(rapporti < 1.0))
+        self.passo("1000 bosoni in una scatola 3D. A sinistra la distribuzione degli impulsi: ogni punto è una particella. "
+                   "Sopra T_c è una nuvola termica che si stringe raffreddando.")
         self.wait(0.6)
-        self.play(f.animate.set_value(F - 1), run_time=12, rate_func=linear)
+        self.play(f.animate.set_value(kc), run_time=12 * kc / F, rate_func=linear)
+        self.passo("Sotto T_c le particelle in eccesso si accumulano nello stato fondamentale, a impulso quasi nullo: il picco "
+                   "dorato al centro. La curva bianca è il calcolo esatto a N = 1000, quella gialla il limite termodinamico.")
+        self.play(f.animate.set_value(F - 1), run_time=12 * (F - 1 - kc) / F, rate_func=linear)
         nuvola.clear_updaters()
         self.wait(1.5)
 
@@ -349,7 +387,10 @@ def colore_corpo_nero(kelvin):
     return rgb_to_color(np.clip([r, g, b], 0, 255) / 255)
 
 
-class SpettroPlanck(Scene):
+class SpettroPlanck(Lezione):
+    USCITA = "planck"
+    TITOLO = "Spettro di corpo nero"
+
     def construct(self):
         self.add(titolo("Spettro di corpo nero", "Planck risolve la catastrofe ultravioletta"))
         assi = Axes(x_range=[0, 12, 2], y_range=[0, 6, 1], x_length=7.6, y_length=4.6,
@@ -393,11 +434,17 @@ class SpettroPlanck(Scene):
         formula.move_to(LEFT * 5.0 + DOWN * 3.0)
 
         self.add(assi, lx, ly, tacche, formula)
+        self.passo("La densità di energia del corpo nero secondo Planck a 2400 K, e il colore che avrebbe un corpo a quella "
+                   "temperatura. La curva tratteggiata è Rayleigh-Jeans, la previsione classica.")
         self.play(FadeIn(alone), FadeIn(disco), FadeIn(kelvin), Create(curva), run_time=1.2)
         self.add(rj)
         self.play(FadeIn(rj_nome), run_time=0.8)
         self.add(picco)
+        self.passo("Scaldando, l'area sotto la curva cresce come T⁴ (Stefan-Boltzmann) e il colore passa dal rosso al bianco. "
+                   "Rayleigh-Jeans cresce come ν² senza limite: la catastrofe ultravioletta.")
         self.play(t.animate.set_value(1.6), run_time=7, rate_func=smooth)
+        self.passo("Il massimo si sposta in proporzione alla temperatura, hν_max ≈ 2,82 k_BT: è la legge di Wien. "
+                   "La linea tratteggiata è il luogo dei massimi.")
         self.play(Create(wien), FadeIn(wien_nome), run_time=1.2)
         self.play(t.animate.set_value(0.8), run_time=4, rate_func=smooth)
         self.wait(1.2)

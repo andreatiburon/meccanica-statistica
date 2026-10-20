@@ -5,6 +5,8 @@ raw/**
 !raw/**/.gitkeep
 .testo/*
 !.testo/.gitkeep
+# Siti costruiti: si rigenerano con scripts/sito.py
 _site/
-__pycache__/
+_site_privato/
 scripts/node_modules/
+__pycache__/

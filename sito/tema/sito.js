@@ -2,7 +2,7 @@
 (() => {
   const riduci = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fmt = (x, d = 2) => x.toFixed(d).replace(".", ",");
-  const COL = { notte: "#1D2747", filetto: "#2E3A60", tenue: "#9AA3BA", ink: "#E8E5DC", oro: "#F2C14E" };
+  const COL = { notte: "#0B1020", filetto: "#2A3762", tenue: "#9AA3BA", ink: "#E8E5DC", oro: "#F2C14E" };
   const FREDDO = [91, 134, 224], CREMA = [232, 229, 220], CALDO = [236, 140, 85], GHIACCIO = [207, 218, 242];
 
   function mescola(a, b, t) { return a.map((v, i) => Math.round(v + (b[i] - v) * t)); }
@@ -421,16 +421,194 @@
     sezioni.forEach(s => io.observe(s));
   }
 
+  /* ================= film passo per passo ================= */
+  // Il video si ferma alla fine di ogni passo; la didascalia spiega il passo corrente.
+  const lettori = [];
+  function film(fig) {
+    const v = fig.querySelector("video");
+    const dati = JSON.parse(fig.dataset.film);
+    const P = dati.passi, N = P.length, EPS = 0.06;
+    const fine = P.map((p, k) => (k + 1 < N ? P[k + 1].t : dati.durata));
+    const riemp = [...fig.querySelectorAll(".film-barra .riemp")];
+    const segmenti = [...fig.querySelectorAll(".film-barra button")];
+    const testo = fig.querySelector(".film-testo"), conta = fig.querySelector("[data-conta]");
+    const btn = a => fig.querySelector(`[data-a="${a}"]`);
+    const avanti = btn("avanti"), tutto = btn("tutto");
+    let i = 0, stato = "nuovo"; // nuovo | gioca | fermo (fine del passo) | pausa (a metà)
+
+    function barra() {
+      const t = v.currentTime || 0;
+      riemp.forEach((r, k) => {
+        const f = k < i ? 1 : k > i ? 0 : Math.max(0, Math.min(1, (t - P[k].t) / Math.max(fine[k] - P[k].t, 0.01)));
+        r.style.transform = `scaleX(${f})`;
+      });
+      segmenti.forEach((b, k) => b.classList.toggle("attivo", k === i));
+    }
+    function scrivi() {
+      testo.innerHTML = P[i].html;  // HTML generato dal sito a partire dalle didascalie dei film
+      conta.textContent = `${i + 1} / ${N}`;
+      avanti.textContent = { gioca: "Pausa", pausa: "Riprendi", nuovo: "Inizia" }[stato] || (i + 1 < N ? "Continua" : "Ricomincia");
+      fig.dataset.stato = stato;
+      barra();
+    }
+    function segui() {
+      if (stato !== "gioca") return;
+      const t = v.currentTime;
+      if (tutto.checked) {
+        while (i + 1 < N && t >= P[i + 1].t) { i++; scrivi(); }
+      } else if (t >= fine[i] - EPS) {
+        v.pause();
+        stato = "fermo";
+        scrivi();
+        return;
+      }
+      barra();
+      requestAnimationFrame(segui);
+    }
+    function gioca() {
+      lettori.forEach(l => l !== lettore && l.ferma());
+      fig.classList.add("avviato");
+      stato = "gioca";
+      scrivi();
+      const p = v.play();
+      if (p) p.catch(() => { stato = "pausa"; scrivi(); });
+      requestAnimationFrame(segui);
+    }
+    function vai(k) {
+      i = Math.max(0, Math.min(N - 1, k));
+      const parti = () => { v.currentTime = P[i].t + 0.01; gioca(); };
+      if (v.readyState >= 1) parti();
+      else {
+        v.preload = "auto";
+        v.addEventListener("loadedmetadata", parti, { once: true });
+        v.load();
+      }
+    }
+    function premi() {
+      if (stato === "gioca") { v.pause(); stato = "pausa"; scrivi(); }
+      else if (stato === "pausa") gioca();
+      else if (stato === "nuovo") vai(0);
+      else vai(i + 1 < N ? i + 1 : 0);
+    }
+    const lettore = { ferma() { if (stato === "gioca") { v.pause(); stato = "pausa"; scrivi(); } } };
+    lettori.push(lettore);
+    avanti.addEventListener("click", premi);
+    btn("prec").addEventListener("click", () => vai(i - 1));
+    btn("rivedi").addEventListener("click", () => vai(i));
+    fig.querySelector(".film-avvia").addEventListener("click", () => vai(0));
+    v.addEventListener("click", premi);
+    segmenti.forEach((b, k) => b.addEventListener("click", () => vai(k)));
+    tutto.addEventListener("change", () => { if (tutto.checked && stato === "fermo" && i + 1 < N) vai(i + 1); });
+    v.addEventListener("ended", () => { i = N - 1; stato = "fermo"; scrivi(); });
+    btn("schermo").addEventListener("click", () => {
+      if (document.fullscreenElement) document.exitFullscreen?.();
+      else fig.requestFullscreen?.().catch(() => {});
+    });
+    fig.addEventListener("keydown", e => {
+      if (e.target.tagName === "INPUT") return;
+      if (e.key === "ArrowRight") { e.preventDefault(); premi(); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); vai(i - 1); }
+    });
+    scrivi();
+  }
+
+  /* ================= dispense (solo versione privata) ================= */
+  function dispense(box) {
+    const stato = box.querySelector(".lettore-stato");
+    const lib = window.pdfjsLib;
+    if (!lib) { stato.textContent = "Il visore PDF non si è caricato: controlla la connessione e ricarica la pagina."; return; }
+    const cv = box.querySelector(".lettore-tela canvas"), tela = box.querySelector(".lettore-tela");
+    const num = box.querySelector('[data-c="numero"]'), tot = box.querySelector('[data-c="totale"]');
+    const voci = [...box.querySelectorAll(".toc-dispense a")].map(a => ({ a, p: +a.getAttribute("href").slice(2) }));
+    let doc = null, pag = 1, zoom = 1, lavoro = null, testi = null;
+
+    async function mostra(n) {
+      if (!doc) return;
+      pag = Math.max(1, Math.min(doc.numPages, n | 0));
+      num.value = pag;
+      try { history.replaceState(null, "", "#p" + pag); } catch (e) { /* non serve altrove */ }
+      let corrente = null;
+      for (const v of voci) { if (v.p <= pag) corrente = v; v.a.classList.remove("on"); }
+      corrente?.a.classList.add("on");
+      const p = await doc.getPage(pag);
+      const base = p.getViewport({ scale: 1 });
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const scala = Math.max(tela.clientWidth - 2, 280) / base.width * zoom;
+      const vp = p.getViewport({ scale: scala * dpr });
+      if (lavoro) lavoro.cancel();
+      cv.width = vp.width; cv.height = vp.height;
+      cv.style.width = vp.width / dpr + "px"; cv.style.height = vp.height / dpr + "px";
+      lavoro = p.render({ canvasContext: cv.getContext("2d"), viewport: vp });
+      try { await lavoro.promise; } catch (e) { /* rendering annullato da una pagina più recente */ }
+    }
+    const daHash = () => { const m = location.hash.match(/^#p(\d+)$/); mostra(m ? +m[1] : pag); };
+    lib.getDocument(box.dataset.pdf).promise.then(d => {
+      doc = d;
+      tot.textContent = d.numPages;
+      num.max = d.numPages;
+      stato.hidden = true;
+      daHash();
+    }).catch(e => { stato.textContent = "Non riesco ad aprire le dispense: " + e.message; });
+    addEventListener("hashchange", daHash);
+    box.querySelector('[data-c="prec"]').onclick = () => mostra(pag - 1);
+    box.querySelector('[data-c="succ"]').onclick = () => mostra(pag + 1);
+    box.querySelector('[data-c="zoom-piu"]').onclick = () => { zoom = Math.min(3, zoom * 1.2); mostra(pag); };
+    box.querySelector('[data-c="zoom-meno"]').onclick = () => { zoom = Math.max(0.5, zoom / 1.2); mostra(pag); };
+    num.addEventListener("change", () => mostra(+num.value));
+    addEventListener("keydown", e => {
+      if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+      if (e.key === "ArrowRight") mostra(pag + 1);
+      if (e.key === "ArrowLeft") mostra(pag - 1);
+    });
+    ridisegni.push(() => mostra(pag));
+
+    // ricerca nel testo estratto, pagina per pagina
+    const campo = box.querySelector("#cerca-testo"), lista = box.querySelector(".risultati");
+    box.querySelector(".cerca").addEventListener("submit", e => e.preventDefault());
+    fetch(box.dataset.testo).then(r => r.json()).then(t => { testi = t; }).catch(() => {});
+    let attesa;
+    campo.addEventListener("input", () => {
+      clearTimeout(attesa);
+      attesa = setTimeout(() => {
+        lista.textContent = "";
+        const q = campo.value.trim();
+        if (!testi || q.length < 3) return;
+        const re = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+        let trovati = 0;
+        testi.forEach((t, k) => {
+          const m = t.search(re);
+          if (m < 0 || trovati >= 40) return;
+          trovati++;
+          const li = document.createElement("li"), a = document.createElement("a");
+          a.href = "#p" + (k + 1);
+          const b = document.createElement("b");
+          b.textContent = "p. " + (k + 1);
+          const prima = document.createTextNode(" …" + t.slice(Math.max(0, m - 45), m));
+          const evid = document.createElement("mark");
+          evid.textContent = t.slice(m, m + q.length);
+          const dopo = document.createTextNode(t.slice(m + q.length, m + q.length + 60) + "…");
+          a.append(b, prima, evid, dopo);
+          li.append(a);
+          lista.append(li);
+        });
+        if (!trovati) {
+          const li = document.createElement("li");
+          li.className = "vuoto";
+          li.textContent = "Nessuna pagina contiene «" + q + "».";
+          lista.append(li);
+        }
+      }, 200);
+    });
+  }
+
   /* ================= avvio ================= */
-  const avvii = { sciame, gas, ising, mappa };
+  const avvii = { sciame, gas, ising, mappa, dispense };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });
+  document.querySelectorAll("figure.film").forEach(f => {
+    try { film(f); } catch (err) { console.error(err); }
+  });
   indice();
-  const vo = new IntersectionObserver(es => es.forEach(e => {
-    if (riduci) return;
-    e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause();
-  }), { threshold: 0.45 });
-  document.querySelectorAll("video").forEach(v => vo.observe(v));
   requestAnimationFrame(ciclo);
 })();

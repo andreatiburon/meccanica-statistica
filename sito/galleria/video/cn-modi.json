@@ -1,0 +1,26 @@
+{
+ "titolo": "Contare i modi di una cavità",
+ "durata": 24.5,
+ "passi": [
+  {
+   "t": 0.0,
+   "testo": "In una cavità di lato L le onde stazionarie hanno vettore d'onda k = (π/L)(n_x, n_y, n_z) con n interi positivi: i modi sono i punti di un reticolo di passo π/L. Qui una sezione a n_z fissato."
+  },
+  {
+   "t": 3.6,
+   "testo": "I modi con |k| tra k e k + dk stanno in un guscio sottile. In questa sezione il loro numero cresce come k; in tre dimensioni, contando l'ottante positivo e due polarizzazioni, cresce come k² dk, cioè ω² dω."
+  },
+  {
+   "t": 11.0,
+   "testo": "Classicamente ogni modo è un oscillatore armonico e per l'equipartizione ha energia media k_BT, qualunque sia la sua frequenza."
+  },
+  {
+   "t": 14.0,
+   "testo": "Con i livelli quantizzati nħω l'energia media diventa ħω/(e^{βħω} − 1): i modi con ħω ≫ k_BT restano praticamente spenti, perché non c'è abbastanza energia per eccitare nemmeno un quanto."
+  },
+  {
+   "t": 16.8,
+   "testo": "Numero di modi per energia media: con k_BT costante si ottiene ω², che integrato su tutte le frequenze diverge, la catastrofe ultravioletta. Con l'energia quantistica si ottiene la legge di Planck, con un massimo e un'energia totale finita, proporzionale a T⁴."
+  }
+ ]
+}
