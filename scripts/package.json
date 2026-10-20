@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "description": "Dipendenze per costruire il sito",
+  "dependencies": { "katex": "0.16.9" }
+}

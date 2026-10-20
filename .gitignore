@@ -7,3 +7,4 @@ raw/**
 !.testo/.gitkeep
 _site/
 __pycache__/
+scripts/node_modules/
