@@ -1,0 +1,9 @@
+# Il repository è pubblico: fonti (libri, appunti, foto) e testo estratto dai PDF
+# restano solo nel container, per copyright e privacy. Si versionano wiki, strumenti e sito.
+raw/**
+!raw/**/
+!raw/**/.gitkeep
+.testo/*
+!.testo/.gitkeep
+_site/
+__pycache__/
