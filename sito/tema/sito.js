@@ -2,7 +2,7 @@
 (() => {
   const riduci = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fmt = (x, d = 2) => x.toFixed(d).replace(".", ",");
-  const COL = { notte: "#0B1020", filetto: "#2A3762", tenue: "#9AA3BA", ink: "#E8E5DC", oro: "#F2C14E" };
+  const COL = { notte: "#0B1020", filetto: "#2A3762", tenue: "#9AA3BA", ink: "#E8E5DC", oro: "#F2C14E", freddo: "#78A0F0", caldo: "#F29563" };
   const FREDDO = [91, 134, 224], CREMA = [232, 229, 220], CALDO = [236, 140, 85], GHIACCIO = [207, 218, 242];
 
   function mescola(a, b, t) { return a.map((v, i) => Math.round(v + (b[i] - v) * t)); }
@@ -649,6 +649,102 @@
     disegna();
   }
 
+  /* ================= strumenti dei laboratori piccoli ================= */
+  const etich = v => (typeof v === "string" ? v : String(v).replace(".", ","));
+  // Piano cartesiano nel riquadro r del canvas: assi, tacche, etichette; restituisce le mappe e i disegnatori.
+  function piano(G, r, o) {
+    const { ctx } = G, m = Object.assign({ l: 40, r: 14, t: 22, b: 28 }, o.m || {});
+    const X = x => r.x + m.l + (x - o.x0) / (o.x1 - o.x0) * (r.w - m.l - m.r);
+    const Y = y => r.y + r.h - m.b - (y - o.y0) / (o.y1 - o.y0) * (r.h - m.t - m.b);
+    ctx.setLineDash([]); ctx.strokeStyle = COL.filetto; ctx.lineWidth = 1; ctx.beginPath();
+    ctx.moveTo(X(o.x0), Y(o.y0) + 0.5); ctx.lineTo(X(o.x1), Y(o.y0) + 0.5);
+    ctx.moveTo(X(o.x0) - 0.5, Y(o.y0)); ctx.lineTo(X(o.x0) - 0.5, Y(o.y1)); ctx.stroke();
+    ctx.fillStyle = COL.tenue; ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center"; (o.tx || []).forEach(v => ctx.fillText(etich(v), X(v), r.y + r.h - 9));
+    ctx.textAlign = "right"; (o.ty || []).forEach(v => ctx.fillText(etich(v), X(o.x0) - 6, Y(v) + 4));
+    if (o.ex) { ctx.textAlign = "right"; ctx.fillText(o.ex, X(o.x1), Y(o.y0) - 7); }
+    if (o.ey) { ctx.textAlign = "left"; ctx.fillText(o.ey, X(o.x0) + 6, r.y + m.t - 6); }
+    const ritaglia = () => { ctx.save(); ctx.beginPath(); ctx.rect(X(o.x0), Y(o.y1), X(o.x1) - X(o.x0), Y(o.y0) - Y(o.y1)); ctx.clip(); };
+    function traccia(f, a, b, unito = false) {
+      const n = Math.max(60, Math.round(Math.abs(X(b) - X(a))));
+      let su = unito;
+      for (let k = 0; k <= n; k++) {
+        const x = a + (b - a) * k / n, y = f(x);
+        if (!isFinite(y)) { su = false; continue; }
+        su ? ctx.lineTo(X(x), Y(Math.max(o.y0 - 1e3 * (o.y1 - o.y0), Math.min(y, o.y1 + 1e3 * (o.y1 - o.y0))))) : ctx.moveTo(X(x), Y(y));
+        su = true;
+      }
+    }
+    return {
+      X, Y,
+      curva(f, col, lw = 2.4, trat = [], a = o.x0, b = o.x1) {
+        ritaglia(); ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(trat); ctx.beginPath(); traccia(f, a, b); ctx.stroke(); ctx.restore();
+      },
+      area(f, col, a = o.x0, b = o.x1) {
+        ritaglia(); ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(X(a), Y(o.y0)); traccia(f, a, b, true);
+        ctx.lineTo(X(b), Y(o.y0)); ctx.closePath(); ctx.fill(); ctx.restore();
+      },
+      verticale(x, col, trat = [4, 4]) {
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.setLineDash(trat); ctx.beginPath();
+        ctx.moveTo(X(x), Y(o.y0)); ctx.lineTo(X(x), Y(o.y1)); ctx.stroke(); ctx.setLineDash([]);
+      },
+      orizzontale(y, col, trat = [4, 4]) {
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.setLineDash(trat); ctx.beginPath();
+        ctx.moveTo(X(o.x0), Y(y)); ctx.lineTo(X(o.x1), Y(y)); ctx.stroke(); ctx.setLineDash([]);
+      },
+      punto(x, y, col, rr = 5) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(X(x), Y(y), rr, 0, 2 * Math.PI); ctx.fill(); },
+      scritta(x, y, t, col, al = "left") { ctx.fillStyle = col; ctx.textAlign = al; ctx.fillText(t, X(x), Y(y)); },
+    };
+  }
+  // Due riquadri affiancati sul largo, impilati sullo stretto.
+  function riquadri(G, quota = 0.55) {
+    const { w, h } = G;
+    return w >= 560 ? [{ x: 0, y: 0, w: w * quota, h }, { x: w * quota, y: 0, w: w * (1 - quota), h }]
+      : [{ x: 0, y: 0, w, h: h / 2 }, { x: 0, y: h / 2, w, h: h / 2 }];
+  }
+  // Cursori, pulsanti preimpostati (data-imposta='{"chiave": valore}') e ridisegno al cambio di misura.
+  function laboratorioPiccolo(box, disegna) {
+    const cv = box.querySelector("canvas");
+    const stato = { G: prepara(cv) };
+    const val = k => +box.querySelector(`[data-c="${k}"]`).value;
+    const scrivi = (k, t) => { const el = box.querySelector(`[data-v="${k}"]`); if (el) el.textContent = t; };
+    const giro = () => { const G = stato.G; G.ctx.fillStyle = COL.notte; G.ctx.fillRect(0, 0, G.w, G.h); disegna(G, val, scrivi); };
+    box.querySelectorAll('input[type="range"]').forEach(c => c.addEventListener("input", giro));
+    box.querySelectorAll("[data-imposta]").forEach(b => b.addEventListener("click", () => {
+      Object.entries(JSON.parse(b.dataset.imposta)).forEach(([k, v]) => { box.querySelector(`[data-c="${k}"]`).value = v; });
+      giro();
+    }));
+    ridisegni.push(() => { stato.G = prepara(cv); giro(); });
+    giro();
+  }
+
+  /* ---- dipoli nel campo: funzione di Langevin e legge di Curie */
+  function langevin(box) {
+    const L = a => (a < 1e-3 ? a / 3 - a ** 3 / 45 : 1 / Math.tanh(a) - 1 / a);
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const a = val("a"), [r1, r2] = riquadri(G);
+      const p1 = piano(G, r1, { x0: 0, x1: 15, y0: 0, y1: 1.08, tx: [0, 5, 10, 15], ty: [0, 0.5, 1], ex: "α = βμE", ey: "⟨cos θ⟩" });
+      p1.orizzontale(1, COL.filetto);
+      p1.curva(x => x / 3, COL.freddo, 1.6, [6, 5]);
+      p1.curva(L, COL.oro);
+      p1.verticale(a, COL.tenue);
+      p1.punto(a, L(a), COL.ink);
+      p1.scritta(3.25, 1.0, "Curie: α/3", COL.freddo);
+      // distribuzione di x = cos θ: α e^{αx} / (2 sinh α)
+      const P = x => (a < 1e-6 ? 0.5 : a * Math.exp(a * (x - 1)) / -Math.expm1(-2 * a));
+      const cima = Math.max(P(1), 0.5) * 1.12;
+      const p2 = piano(G, r2, { x0: -1, x1: 1, y0: 0, y1: cima, tx: [-1, 0, 1], ex: "cos θ", ey: "probabilità di cos θ" });
+      p2.area(P, "rgba(242,193,78,.22)");
+      p2.curva(P, COL.oro);
+      p2.verticale(L(a), COL.ink, [3, 3]);
+      p2.scritta(L(a), cima * 0.93, " ⟨cos θ⟩", COL.ink, L(a) > 0.3 ? "right" : "left");
+      scrivi("a", fmt(a, 2));
+      scrivi("L", fmt(L(a), 3));
+      scrivi("curie", fmt(Math.min(a / 3, 99), 3));
+      scrivi("err", a < 0.01 ? "0 %" : fmt((a / 3 - L(a)) / L(a) * 100, 1) + " %");
+    });
+  }
+
   /* ================= pannello laterale con la pagina originale (versione privata) ================= */
   function cassetto() {
     const box = document.querySelector(".cassetto");
@@ -694,7 +790,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });

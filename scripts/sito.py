@@ -51,9 +51,8 @@ FILM_TESTA = {"modello-di-ising-e-campo-medio": "ising"}
 FILM_SEZIONI = {
     "insieme-microcanonico": {"equilibrio-termico": ["micro-scambio-energia"], "gibbs": ["micro-gibbs"],
                               "due-livelli": ["micro-due-livelli"], "probabilita-microscopiche": ["gas-maxwell"]},
-    "insieme-canonico": {"dal-serbatoio-al-peso-di-boltzmann": ["can-serbatoio"],
-                         "gas-perfetto-e-maxwell-boltzmann": ["gas-maxwell"],
-                         "distribuzione-dellenergia-ed-equivalenza-degli-ensemble": ["can-picco-energia"]},
+    "insieme-canonico": {"serbatoio": ["can-serbatoio"], "maxwell": ["gas-maxwell"],
+                         "distribuzione-energia": ["can-picco-energia"]},
     "insieme-gran-canonico-e-npt": {"compressibilità-isoterma-e-fluttuazioni-di-n": ["gc-fluttuazioni-n"],
                                     "insieme-npt": ["gc-npt"]},
     "gas-reali-viriale-e-van-der-waals": {"primo-coefficiente-del-viriale": ["reali-mayer"],
@@ -69,9 +68,9 @@ FILM_SEZIONI = {
 }
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
 # Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
-LEZIONI = {"insieme-microcanonico"}
+LEZIONI = {"insieme-microcanonico", "insieme-canonico"}
 LABORATORI = {
-    "insieme-canonico": ("gas-perfetto-e-maxwell-boltzmann", "gas"),
+    "insieme-canonico": ("maxwell", "gas"),
     "modello-di-ising-e-campo-medio": ("ising-2d-e-bragg-williams", "ising"),
 }
 ETICHETTE_MAPPA = {
@@ -267,6 +266,16 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <div class="comandi"><button type="button" data-p="0.48">D = 3</button><button type="button" data-p="2">D = 100</button><button type="button" data-p="23.8">D ≈ 3N</button></div>
 </div></div>
 <figcaption><b>Laboratorio</b><i>Il volume sta nella buccia.</i> La curva è la probabilità che un punto preso a caso dentro una sfera a D dimensioni stia a distanza r dal centro, proporzionale a r<sup>D−1</sup>; la fascia gialla è il guscio esterno di spessore ε. Sposta D verso il numero di Avogadro e guarda dove finisce tutto il volume.</figcaption>
+</figure>""",
+"langevin": """<figure class="lab lab-largo" data-lab="langevin">
+<div class="lab-banco">
+<canvas aria-label="A sinistra la funzione di Langevin e la retta di Curie, a destra la distribuzione di cos θ"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>α = βμE (campo / temperatura)</span><output data-v="a">1</output></label><input type="range" min="0" max="15" step="0.01" value="1" data-c="a" aria-label="Rapporto tra energia del dipolo nel campo e energia termica"></div>
+<dl class="misure"><dt>⟨cos θ⟩ = 𝓛(α)</dt><dd data-v="L">–</dd><dt>legge di Curie α/3</dt><dd data-v="curie">–</dd><dt>errore di Curie</dt><dd data-v="err">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"a": 0.3}'>campo debole</button><button type="button" data-imposta='{"a": 3}'>α = 3</button><button type="button" data-imposta='{"a": 15}'>saturazione</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Il campo ordina, la temperatura disordina.</i> Un grafico mostra la probabilità dell'orientazione, proporzionale a e<sup>α cos θ</sup>: per α piccolo è quasi piatta, per α grande si schiaccia verso cos θ = 1. L'altro mostra la media ⟨cos θ⟩, la funzione di Langevin, con la retta tratteggiata della legge di Curie. Guarda fin dove la retta resta una buona approssimazione.</figcaption>
 </figure>"""}
 
 CASSETTO = """<aside class="cassetto" hidden aria-label="Pagina originale delle dispense">
