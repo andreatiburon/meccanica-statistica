@@ -853,9 +853,164 @@
       p2.curva(f, COL.caldo, 2.4, [], -0.999, 0.999);
       if (migliore !== null) p2.punto(migliore, f(migliore), COL.ink);
       scrivi("t", fmt(t, 2)); scrivi("h", fmt(h, 3));
-      scrivi("L", migliore === null ? "—" : fmt(migliore, 3));
-      scrivi("n", String(radici.length) + (radici.length === 3 ? " (2 stabili)" : ""));
+      const simmetrico = Math.abs(h) < 1e-9 && radici.length === 3;
+      scrivi("L", migliore === null ? "—" : (simmetrico ? "±" : "") + fmt(simmetrico ? Math.abs(migliore) : migliore, 3));
+      scrivi("n", radici.length === 3 ? "3, due stabili" : String(radici.length));
       scrivi("chi", t > 1.0005 ? fmt(1 / (t - 1), 1) : t < 0.9995 ? "—" : "∞");
+    });
+  }
+
+  /* ---- gas di Fermi in 3D: unità ε_F = 1, g(ε) ∝ √ε, N fissato */
+  function fermi(box) {
+    // ∫_0^∞ ε^q n(ε) dε con ε = u²: integrando liscio, Simpson
+    const momento = (q, m, t) => {
+      const sup = Math.sqrt(Math.max(m, 0) + 40 * t + 1e-9), n = 1200, h = sup / n;
+      let s = 0;
+      for (let k = 0; k <= n; k++) {
+        const u = k * h, e = u * u, x = (e - m) / t;
+        const f = 2 * u * e ** q / (x > 50 ? Infinity : Math.exp(x) + 1);
+        s += f * (k === 0 || k === n ? 1 : k % 2 ? 4 : 2);
+      }
+      return s * h / 3;
+    };
+    const mu = t => {
+      if (t < 2e-3) return 1;
+      let a = -30 * t - 5, b = 1.5;
+      for (let i = 0; i < 70; i++) { const c = (a + b) / 2; if (momento(0.5, c, t) > 2 / 3) b = c; else a = c; }
+      return (a + b) / 2;
+    };
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const t = val("t"), m = mu(t);
+      const n = e => (t < 2e-3 ? (e < 1 ? 1 : 0) : 1 / (Math.exp(Math.min((e - m) / t, 60)) + 1));
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: 0, x1: 2.5, y0: 0, y1: 1.7, tx: [0, 0.5, 1, 1.5, 2, 2.5], ty: [0, 0.5, 1, 1.5], ex: "ε / εF", ey: "g(ε), stati occupati g(ε)n(ε), occupazione n(ε)" });
+      p.area(e => Math.sqrt(e) * n(e), "rgba(242,149,99,.32)");
+      p.curva(e => Math.sqrt(e), COL.tenue, 1.4, [5, 4]);
+      p.curva(e => Math.sqrt(e) * n(e), COL.caldo, 2);
+      p.curva(n, COL.oro, 2.2);
+      p.verticale(1, COL.filetto);
+      if (m > 0) { p.verticale(m, COL.ink, [3, 3]); p.scritta(m, 1.55, " μ", COL.ink, m > 2.2 ? "right" : "left"); }
+      const E = t < 2e-3 ? 1 : momento(1.5, m, t) / 0.4;
+      scrivi("t", fmt(t, 3));
+      scrivi("mu", fmt(m, 4)); scrivi("muS", fmt(1 - Math.PI ** 2 * t * t / 12, 4));
+      scrivi("E", fmt(E, 4)); scrivi("ES", fmt(1 + 5 * Math.PI ** 2 * t * t / 12, 4)); scrivi("ED", fmt(1 + 5 * Math.PI ** 2 * t * t / 8, 4));
+    });
+  }
+
+  /* ---- gas di Bose in 3D: saturazione degli stati eccitati e condensato */
+  function bose(box) {
+    const Z32 = 2.612375348685488, Z52 = 1.341487257250917, Z12 = -1.4603545088095868;
+    const g = (nu, z) => {
+      if (z <= 0) return 0;
+      const a = -Math.log(z);
+      if (a < 0.01) {
+        if (nu === 0.5) return Math.sqrt(Math.PI / a) + Z12;
+        if (nu === 1.5) return Z32 - 2 * Math.sqrt(Math.PI * a) - Z12 * a;
+        return Z52 - Z32 * a + (4 / 3) * Math.sqrt(Math.PI) * a ** 1.5;
+      }
+      let s = 0, zk = 1;
+      for (let k = 1; k < 20000; k++) { zk *= z; const d = zk / k ** nu; s += d; if (d < 1e-10) break; }
+      return s;
+    };
+    const zDi = r => { if (r >= Z32) return 1; let a = 0, b = 1; for (let i = 0; i < 50; i++) { const c = (a + b) / 2; if (g(1.5, c) > r) b = c; else a = c; } return (a + b) / 2; };
+    const cv = t => {
+      if (t <= 1) return 3.75 * Z52 / Z32 * t ** 1.5;
+      const z = zDi(Z32 * t ** -1.5);
+      return 3.75 * g(2.5, z) / g(1.5, z) - 2.25 * g(1.5, z) / g(0.5, z);
+    };
+    const curvaCv = Array.from({ length: 161 }, (_, i) => { const t = 0.01 + i * 2.49 / 160; return [t, cv(t)]; });
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const t = val("t"), r = Z32 * t ** -1.5, z = zDi(r), f0 = Math.max(0, 1 - t ** 1.5);
+      const [r1, r2] = riquadri(G);
+      const p1 = piano(G, r1, { x0: 0, x1: 1, y0: 0, y1: 4.2, tx: [0, 0.5, 1], ty: [0, 1, 2, 2.612, 4], ex: "z = e^βμ", ey: "ρλ³ e g₃/₂(z)" });
+      p1.orizzontale(Z32, COL.filetto);
+      p1.curva(x => g(1.5, x), COL.oro, 2.4, [], 0, 0.9995);
+      p1.orizzontale(Math.min(r, 4.2), COL.caldo, [6, 4]);
+      if (r <= Z32) p1.punto(z, r, COL.ink);
+      else {
+        const { ctx } = G; ctx.strokeStyle = COL.caldo; ctx.lineWidth = 5; ctx.beginPath();
+        ctx.moveTo(p1.X(1) - 3, p1.Y(Z32)); ctx.lineTo(p1.X(1) - 3, p1.Y(Math.min(r, 4.2))); ctx.stroke();
+        p1.punto(1, Z32, COL.ink);
+        p1.scritta(0.97, Math.min((Z32 + Math.min(r, 4.2)) / 2, 4), "condensato ", COL.caldo, "right");
+      }
+      const p2 = piano(G, r2, { x0: 0, x1: 2.5, y0: 0, y1: 2.1, tx: [0, 1, 2], ty: [0, 1, 2], ex: "T / Tc", ey: "N₀/N e CV/NkB" });
+      p2.orizzontale(1.5, COL.filetto);
+      p2.curva(x => Math.max(0, 1 - x ** 1.5), COL.freddo, 2);
+      const { ctx } = G; ctx.strokeStyle = COL.oro; ctx.lineWidth = 2.2; ctx.beginPath();
+      curvaCv.forEach(([x, y], i) => (i ? ctx.lineTo(p2.X(x), p2.Y(y)) : ctx.moveTo(p2.X(x), p2.Y(y)))); ctx.stroke();
+      p2.verticale(t, COL.tenue);
+      p2.punto(t, f0, COL.freddo, 4.5); p2.punto(t, cv(t), COL.ink, 4.5);
+      p2.scritta(0.08, 1.62, "classico 3/2", COL.tenue);
+      scrivi("t", fmt(t, 2)); scrivi("r", fmt(r, 3)); scrivi("z", z >= 1 ? "1" : fmt(z, 4));
+      scrivi("bm", z >= 1 ? "0" : fmt(Math.log(z), 3)); scrivi("f0", fmt(f0 * 100, 1) + " %"); scrivi("cv", fmt(cv(t), 3));
+    });
+  }
+
+  /* ---- spettro di corpo nero: Planck contro Rayleigh-Jeans */
+  function planck(box) {
+    const H = 6.62607015e-34, K = 1.380649e-23, C = 2.99792458e8, SIGMA = 5.670374419e-8;
+    const x3 = x => (x < 1e-6 ? x * x : x ** 3 / Math.expm1(x));
+    const frazione = (a, b) => { // ∫_a^b x³/(e^x − 1) dx / (π⁴/15), Simpson
+      const n = 400, h = (b - a) / n; let s = 0;
+      for (let k = 0; k <= n; k++) s += x3(a + k * h) * (k === 0 || k === n ? 1 : k % 2 ? 4 : 2);
+      return s * h / 3 / (Math.PI ** 4 / 15);
+    };
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const T = 10 ** val("lt"), a = H * C / (K * T);           // x = a/λ con λ in metri
+      const u = lnm => { const l = lnm * 1e-9, x = a / l; return x > 700 ? 0 : l ** -5 / Math.expm1(x); };
+      const lmax = H * C / (4.965114231744277 * K * T) * 1e9;
+      const umax = u(lmax);
+      const x1 = Math.max(2000, Math.min(20000, lmax * 4));
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: 0, x1, y0: 0, y1: 1.15, tx: [0, x1 / 4, x1 / 2, 3 * x1 / 4, x1].map(v => Math.round(v)), ty: [0, 0.5, 1], ex: "λ (nm)", ey: "densità di energia per lunghezza d'onda (unità del massimo)" });
+      const { ctx } = G;
+      const g = ctx.createLinearGradient(p.X(380), 0, p.X(750), 0);
+      ["#7b2cbf", "#3a86ff", "#2ec4b6", "#8ac926", "#ffca3a", "#ff7f11", "#e63946"].forEach((c, i, v) => g.addColorStop(i / (v.length - 1), c));
+      ctx.save(); ctx.globalAlpha = 0.16; ctx.fillStyle = g; ctx.fillRect(p.X(380), p.Y(1.15), p.X(750) - p.X(380), p.Y(0) - p.Y(1.15)); ctx.restore();
+      p.curva(l => (K * T * (l * 1e-9) ** -4 / (H * C)) / umax, COL.freddo, 1.8, [7, 6], lmax * 0.45, x1);
+      p.area(l => (l <= 0 ? 0 : u(l) / umax), "rgba(242,149,99,.22)");
+      p.curva(l => (l <= 0 ? 0 : u(l) / umax), COL.oro, 2.4);
+      p.verticale(lmax, COL.ink, [3, 3]);
+      p.scritta(lmax, 1.08, " λmax", COL.ink, lmax > 0.8 * x1 ? "right" : "left");
+      p.scritta(x1 * 0.98, 0.15, "Rayleigh-Jeans", COL.freddo, "right");
+      scrivi("T", Math.round(T).toLocaleString("it-IT") + " K");
+      scrivi("lm", Math.round(lmax).toLocaleString("it-IT") + " nm");
+      scrivi("sig", sci(SIGMA * T ** 4) + " W/m²");
+      scrivi("vis", fmt(100 * frazione(a / 750e-9, a / 380e-9), 1) + " %");
+    });
+  }
+
+  /* ---- calore specifico dei solidi: Dulong-Petit, Einstein, Debye */
+  function solidi(box) {
+    const ein = t => { const x = 1 / t; if (x > 700) return 0; const e = Math.expm1(x); return x * x * (e + 1) / (e * e); };
+    const integrando = x => { if (x < 1e-6) return x * x; const e = Math.expm1(x); return x ** 4 * (e + 1) / (e * e); };
+    const deb = t => {
+      const b = Math.min(1 / t, 60), n = 400, h = b / n; let s = 0;
+      for (let k = 0; k <= n; k++) s += integrando(k * h) * (k === 0 || k === n ? 1 : k % 2 ? 4 : 2);
+      return 3 * t ** 3 * s * h / 3;
+    };
+    const curvaE = [], curvaD = [];
+    for (let i = 0; i <= 240; i++) { const t = 0.005 + i * 1.495 / 240; curvaE.push([t, ein(t)]); curvaD.push([t, deb(t)]); }
+    const lg = [];
+    for (let i = 0; i <= 200; i++) { const t = 10 ** (-2 + 2 * i / 200); lg.push([t, ein(t), deb(t)]); }
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const t = val("t"), [r1, r2] = riquadri(G);
+      const { ctx } = G;
+      const linea = (p, pts, col, lw = 2.2) => { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash([]); ctx.beginPath(); pts.forEach(([x, y], i) => (i ? ctx.lineTo(p.X(x), p.Y(y)) : ctx.moveTo(p.X(x), p.Y(y)))); ctx.stroke(); };
+      const p1 = piano(G, r1, { x0: 0, x1: 1.5, y0: 0, y1: 1.12, tx: [0, 0.5, 1, 1.5], ty: [0, 0.5, 1], ex: "T / θ", ey: "CV / 3NkB" });
+      p1.orizzontale(1, COL.tenue, [6, 5]);
+      linea(p1, curvaE, COL.freddo); linea(p1, curvaD, COL.oro);
+      p1.verticale(t, COL.tenue);
+      p1.punto(t, ein(t), COL.freddo, 4.5); p1.punto(t, deb(t), COL.ink, 4.5);
+      p1.scritta(1.48, 1.04, "Dulong-Petit", COL.tenue, "right");
+      // log-log: log10 C contro log10 T/θ
+      const p2 = piano(G, r2, { x0: -2, x1: 0, y0: -7, y1: 0.3, tx: [-2, -1, 0].map(v => v), ty: [-6, -4, -2, 0], ex: "log₁₀ T/θ", ey: "log₁₀ CV/3NkB" });
+      linea(p2, lg.filter(v => v[1] > 1e-7).map(([x, e]) => [Math.log10(x), Math.log10(e)]), COL.freddo);
+      linea(p2, lg.map(([x, , d]) => [Math.log10(x), Math.log10(d)]), COL.oro);
+      p2.curva(x => Math.log10(4 * Math.PI ** 4 / 5 * 10 ** (3 * x)), COL.caldo, 1.4, [4, 4], -2, -0.6);
+      if (t <= 1) p2.verticale(Math.log10(t), COL.tenue);
+      p2.scritta(-1.95, -6.6, "Einstein: esponenziale", COL.freddo);
+      p2.scritta(-1.25, -3.1, "Debye: T³", COL.oro);
+      scrivi("t", fmt(t, 3)); scrivi("e", fmt(ein(t), 4)); scrivi("d", fmt(deb(t), 4));
+      scrivi("r", ein(t) > 1e-300 ? sci(deb(t) / ein(t)) : "enorme");
     });
   }
 
@@ -904,7 +1059,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio, fermi, bose, planck, solidi };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });
