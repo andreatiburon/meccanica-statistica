@@ -2,7 +2,7 @@
 (() => {
   const riduci = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const fmt = (x, d = 2) => x.toFixed(d).replace(".", ",");
-  const COL = { notte: "#0B1020", filetto: "#2A3762", tenue: "#9AA3BA", ink: "#E8E5DC", oro: "#F2C14E" };
+  const COL = { notte: "#0B1020", filetto: "#2A3762", tenue: "#9AA3BA", ink: "#E8E5DC", oro: "#F2C14E", freddo: "#78A0F0", caldo: "#F29563" };
   const FREDDO = [91, 134, 224], CREMA = [232, 229, 220], CALDO = [236, 140, 85], GHIACCIO = [207, 218, 242];
 
   function mescola(a, b, t) { return a.map((v, i) => Math.round(v + (b[i] - v) * t)); }
@@ -649,6 +649,216 @@
     disegna();
   }
 
+  /* ================= strumenti dei laboratori piccoli ================= */
+  const etich = v => (typeof v === "string" ? v : String(v).replace(".", ","));
+  // numero in notazione scientifica leggibile: 0,034 oppure 2,5·10⁻⁷
+  function sci(x) {
+    if (x >= 1e-3 && x < 1e4) return x.toLocaleString("it-IT", { maximumSignificantDigits: 3 });
+    const e = Math.floor(Math.log10(x)), m = x / 10 ** e;
+    return `${fmt(m, 1)}·10${String(e).replace("-", "⁻").replace(/\d/g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹"[c])}`;
+  }
+  // Piano cartesiano nel riquadro r del canvas: assi, tacche, etichette; restituisce le mappe e i disegnatori.
+  function piano(G, r, o) {
+    const { ctx } = G, m = Object.assign({ l: 40, r: 14, t: 22, b: 28 }, o.m || {});
+    const X = x => r.x + m.l + (x - o.x0) / (o.x1 - o.x0) * (r.w - m.l - m.r);
+    const Y = y => r.y + r.h - m.b - (y - o.y0) / (o.y1 - o.y0) * (r.h - m.t - m.b);
+    ctx.setLineDash([]); ctx.strokeStyle = COL.filetto; ctx.lineWidth = 1; ctx.beginPath();
+    ctx.moveTo(X(o.x0), Y(o.y0) + 0.5); ctx.lineTo(X(o.x1), Y(o.y0) + 0.5);
+    ctx.moveTo(X(o.x0) - 0.5, Y(o.y0)); ctx.lineTo(X(o.x0) - 0.5, Y(o.y1)); ctx.stroke();
+    ctx.fillStyle = COL.tenue; ctx.font = "11px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center"; (o.tx || []).forEach(v => ctx.fillText(etich(v), X(v), r.y + r.h - 9));
+    ctx.textAlign = "right"; (o.ty || []).forEach(v => ctx.fillText(etich(v), X(o.x0) - 6, Y(v) + 4));
+    if (o.ex) { ctx.textAlign = "right"; ctx.fillText(o.ex, X(o.x1), Y(o.y0) - 7); }
+    if (o.ey) { ctx.textAlign = "left"; ctx.fillText(o.ey, X(o.x0) + 6, r.y + m.t - 6); }
+    const ritaglia = () => { ctx.save(); ctx.beginPath(); ctx.rect(X(o.x0), Y(o.y1), X(o.x1) - X(o.x0), Y(o.y0) - Y(o.y1)); ctx.clip(); };
+    function traccia(f, a, b, unito = false) {
+      const n = Math.max(60, Math.round(Math.abs(X(b) - X(a))));
+      let su = unito;
+      for (let k = 0; k <= n; k++) {
+        const x = a + (b - a) * k / n, y = f(x);
+        if (!isFinite(y)) { su = false; continue; }
+        su ? ctx.lineTo(X(x), Y(Math.max(o.y0 - 1e3 * (o.y1 - o.y0), Math.min(y, o.y1 + 1e3 * (o.y1 - o.y0))))) : ctx.moveTo(X(x), Y(y));
+        su = true;
+      }
+    }
+    return {
+      X, Y,
+      curva(f, col, lw = 2.4, trat = [], a = o.x0, b = o.x1) {
+        ritaglia(); ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(trat); ctx.beginPath(); traccia(f, a, b); ctx.stroke(); ctx.restore();
+      },
+      area(f, col, a = o.x0, b = o.x1) {
+        ritaglia(); ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(X(a), Y(o.y0)); traccia(f, a, b, true);
+        ctx.lineTo(X(b), Y(o.y0)); ctx.closePath(); ctx.fill(); ctx.restore();
+      },
+      verticale(x, col, trat = [4, 4]) {
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.setLineDash(trat); ctx.beginPath();
+        ctx.moveTo(X(x), Y(o.y0)); ctx.lineTo(X(x), Y(o.y1)); ctx.stroke(); ctx.setLineDash([]);
+      },
+      orizzontale(y, col, trat = [4, 4]) {
+        ctx.strokeStyle = col; ctx.lineWidth = 1.2; ctx.setLineDash(trat); ctx.beginPath();
+        ctx.moveTo(X(o.x0), Y(y)); ctx.lineTo(X(o.x1), Y(y)); ctx.stroke(); ctx.setLineDash([]);
+      },
+      punto(x, y, col, rr = 5) { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(X(x), Y(y), rr, 0, 2 * Math.PI); ctx.fill(); },
+      scritta(x, y, t, col, al = "left") { ctx.fillStyle = col; ctx.textAlign = al; ctx.fillText(t, X(x), Y(y)); },
+    };
+  }
+  // Due riquadri affiancati sul largo, impilati sullo stretto.
+  function riquadri(G, quota = 0.55) {
+    const { w, h } = G;
+    return w >= 560 ? [{ x: 0, y: 0, w: w * quota, h }, { x: w * quota, y: 0, w: w * (1 - quota), h }]
+      : [{ x: 0, y: 0, w, h: h / 2 }, { x: 0, y: h / 2, w, h: h / 2 }];
+  }
+  // Cursori, pulsanti preimpostati (data-imposta='{"chiave": valore}') e ridisegno al cambio di misura.
+  function laboratorioPiccolo(box, disegna) {
+    const cv = box.querySelector("canvas");
+    const stato = { G: prepara(cv) };
+    const val = k => +box.querySelector(`[data-c="${k}"]`).value;
+    const scrivi = (k, t) => { const el = box.querySelector(`[data-v="${k}"]`); if (el) el.textContent = t; };
+    const giro = () => { const G = stato.G; G.ctx.fillStyle = COL.notte; G.ctx.fillRect(0, 0, G.w, G.h); disegna(G, val, scrivi); };
+    box.querySelectorAll('input[type="range"]').forEach(c => c.addEventListener("input", giro));
+    box.querySelectorAll("[data-imposta]").forEach(b => b.addEventListener("click", () => {
+      Object.entries(JSON.parse(b.dataset.imposta)).forEach(([k, v]) => { box.querySelector(`[data-c="${k}"]`).value = v; });
+      giro();
+    }));
+    ridisegni.push(() => { stato.G = prepara(cv); giro(); });
+    giro();
+  }
+
+  /* ---- dipoli nel campo: funzione di Langevin e legge di Curie */
+  function langevin(box) {
+    const L = a => (a < 1e-3 ? a / 3 - a ** 3 / 45 : 1 / Math.tanh(a) - 1 / a);
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const a = val("a"), [r1, r2] = riquadri(G);
+      const p1 = piano(G, r1, { x0: 0, x1: 15, y0: 0, y1: 1.08, tx: [0, 5, 10, 15], ty: [0, 0.5, 1], ex: "α = βμE", ey: "⟨cos θ⟩" });
+      p1.orizzontale(1, COL.filetto);
+      p1.curva(x => x / 3, COL.freddo, 1.6, [6, 5]);
+      p1.curva(L, COL.oro);
+      p1.verticale(a, COL.tenue);
+      p1.punto(a, L(a), COL.ink);
+      p1.scritta(3.25, 1.0, "Curie: α/3", COL.freddo);
+      // distribuzione di x = cos θ: α e^{αx} / (2 sinh α)
+      const P = x => (a < 1e-6 ? 0.5 : a * Math.exp(a * (x - 1)) / -Math.expm1(-2 * a));
+      const cima = Math.max(P(1), 0.5) * 1.12;
+      const p2 = piano(G, r2, { x0: -1, x1: 1, y0: 0, y1: cima, tx: [-1, 0, 1], ex: "cos θ", ey: "probabilità di cos θ" });
+      p2.area(P, "rgba(242,193,78,.22)");
+      p2.curva(P, COL.oro);
+      p2.verticale(L(a), COL.ink, [3, 3]);
+      p2.scritta(L(a), cima * 0.93, " ⟨cos θ⟩", COL.ink, L(a) > 0.3 ? "right" : "left");
+      scrivi("a", fmt(a, 2));
+      scrivi("L", fmt(L(a), 3));
+      scrivi("curie", fmt(Math.min(a / 3, 99), 3));
+      scrivi("err", a < 0.01 ? "0 %" : fmt((a / 3 - L(a)) / L(a) * 100, 1) + " %");
+    });
+  }
+
+  /* ---- adsorbimento: isoterma di Langmuir */
+  function langmuir(box) {
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const be = val("be"), lx = val("x");
+      const f = (b, l) => { const y = Math.exp(l * Math.LN10 + b); return y / (1 + y); };
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: -6, x1: 2, y0: 0, y1: 1.08, tx: [-6, -4, -2, 0, 2], ty: [0, 0.5, 1], ex: "log₁₀ della densità", ey: "frazione di siti occupati f", m: { l: 40, r: 16, t: 22, b: 28 } });
+      p.orizzontale(0.5, COL.filetto);
+      p.curva(l => f(0, l), COL.freddo, 1.6, [6, 5]);
+      p.area(l => f(be, l) * (1 - f(be, l)) * 4 * 0.25, "rgba(242,149,99,.18)");
+      p.curva(l => f(be, l), COL.oro);
+      const mezzo = -be / Math.LN10;
+      if (mezzo >= -6) p.verticale(mezzo, COL.tenue);
+      p.punto(lx, f(be, lx), COL.ink);
+      p.scritta(0.15, 0.4, "βε = 0", COL.freddo);
+      const fl = f(be, lx);
+      scrivi("be", fmt(be, 1));
+      scrivi("x", sci(10 ** lx));
+      scrivi("f", fmt(fl * 100, 1) + " %");
+      scrivi("mezzo", sci(Math.exp(-be)));
+      scrivi("var", fmt(fl * (1 - fl), 3));
+    });
+  }
+
+  /* ---- Van der Waals: isoterma ridotta, spinodale e costruzione di Maxwell */
+  function vdw(box) {
+    const bis = (g, a, b) => { let ga = g(a); for (let k = 0; k < 90; k++) { const c = (a + b) / 2, gc = g(c); if ((gc > 0) === (ga > 0)) { a = c; ga = gc; } else b = c; } return (a + b) / 2; };
+    // per θ < 1: punti spinodali, pressione di coesistenza e volumi delle due fasi
+    function maxwell(th) {
+      const pi = f => 8 * th / (3 * f - 1) - 3 / (f * f), prim = f => 8 * th / 3 * Math.log(3 * f - 1) + 3 / f;
+      const h = f => (3 * f - 1) ** 2 - 4 * th * f ** 3;
+      const sl = bis(h, 1 / 3 + 1e-9, 1), sg = bis(h, 1, 1e3);
+      const radici = p => [bis(f => pi(f) - p, 1 / 3 + 1e-9, sl), bis(f => pi(f) - p, sg, 1e5)];
+      const area = p => { const [a, b] = radici(p); return prim(b) - prim(a) - p * (b - a); };
+      const pc = bis(area, Math.max(pi(sl), 0) + 1e-12, pi(sg) - 1e-12);
+      const [fl, fg] = radici(pc);
+      return { sl, sg, pc, fl, fg, pi };
+    }
+    const cupola = [];
+    for (let th = 0.6; th < 0.9995; th += 0.01) { const m = maxwell(th); cupola.push([m.fl, m.pc], [m.fg, m.pc]); }
+    const binodale = cupola.filter((_, i) => i % 2 === 0).concat([[1, 1]], cupola.filter((_, i) => i % 2).reverse());
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const th = val("th"), pi = f => 8 * th / (3 * f - 1) - 3 / (f * f);
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: 0.35, x1: 4, y0: -0.6, y1: 2.2, tx: [1, 2, 3, 4], ty: [0, 1, 2], ex: "φ = V/Vc", ey: "π = P/Pc" });
+      p.orizzontale(0, COL.filetto, []);
+      // cupola di coesistenza
+      const { ctx } = G;
+      ctx.save(); ctx.beginPath(); ctx.rect(p.X(0.35), p.Y(2.2), p.X(4) - p.X(0.35), p.Y(-0.6) - p.Y(2.2)); ctx.clip();
+      ctx.strokeStyle = "rgba(154,163,186,.55)"; ctx.lineWidth = 1.2; ctx.setLineDash([3, 4]); ctx.beginPath();
+      binodale.forEach(([x, y], i) => (i ? ctx.lineTo(p.X(x), p.Y(y)) : ctx.moveTo(p.X(x), p.Y(y))));
+      ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+      p.curva(f => 8 / (3 * f - 1) - 3 / (f * f), COL.freddo, 1.4, [6, 5], 0.4, 4);
+      if (th < 0.9995) {
+        const m = maxwell(th);
+        // i due lobi di area uguale
+        ctx.save(); ctx.beginPath(); ctx.rect(p.X(0.35), p.Y(2.2), p.X(4) - p.X(0.35), p.Y(-0.6) - p.Y(2.2)); ctx.clip();
+        ctx.fillStyle = "rgba(242,149,99,.28)"; ctx.beginPath(); ctx.moveTo(p.X(m.fl), p.Y(m.pc));
+        const n = 240;
+        for (let k = 0; k <= n; k++) { const f = m.fl + (m.fg - m.fl) * k / n; ctx.lineTo(p.X(f), p.Y(pi(f))); }
+        ctx.closePath(); ctx.fill(); ctx.restore();
+        p.curva(pi, COL.oro, 2.4, [], 0.36, 4);
+        ctx.strokeStyle = COL.caldo; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(p.X(m.fl), p.Y(m.pc)); ctx.lineTo(p.X(m.fg), p.Y(m.pc)); ctx.stroke();
+        p.punto(m.fl, m.pc, COL.ink, 4.5); p.punto(m.fg, m.pc, COL.ink, 4.5);
+        p.punto(m.sl, pi(m.sl), COL.tenue, 3.5); p.punto(m.sg, pi(m.sg), COL.tenue, 3.5);
+        scrivi("pc", fmt(m.pc, 3)); scrivi("fl", fmt(m.fl, 3)); scrivi("fg", fmt(m.fg, 2)); scrivi("r", fmt(m.fg / m.fl, 2));
+      } else {
+        p.curva(pi, COL.oro, 2.4, [], 0.36, 4);
+        ["pc", "fl", "fg", "r"].forEach(k => scrivi(k, "—"));
+      }
+      p.scritta(3.95, 0.66, "isoterma critica", COL.freddo, "right");
+      scrivi("th", fmt(th, 3));
+    });
+  }
+
+  /* ---- campo medio: soluzione grafica di L = tanh((Tc/T)(L + h)) ed energia libera di Bragg-Williams */
+  function campoMedio(box) {
+    const ent = L => { const p = (1 + L) / 2, q = (1 - L) / 2; return (p > 0 ? p * Math.log(p) : 0) + (q > 0 ? q * Math.log(q) : 0); };
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const t = val("t"), h = val("h");
+      const g = L => Math.tanh((L + h) / t);
+      const f = L => -h * L - L * L / 2 + t * ent(L);           // in unità di k_B T_c, a meno di costanti
+      // radici di g(L) - L su [-1, 1]
+      const radici = [], n = 800;
+      let xa = -1, ya = g(-1) + 1;
+      for (let k = 1; k <= n; k++) {
+        const xb = -1 + 2 * k / n, yb = g(xb) - xb;
+        if (ya === 0) radici.push(xa);
+        else if (ya * yb < 0) { let a = xa, b = xb, fa = ya; for (let i = 0; i < 60; i++) { const c = (a + b) / 2, fc = g(c) - c; if ((fc > 0) === (fa > 0)) { a = c; fa = fc; } else b = c; } radici.push((a + b) / 2); }
+        xa = xb; ya = yb;
+      }
+      const stabile = L => (1 - g(L) ** 2) / t < 1;
+      const migliore = radici.filter(stabile).reduce((m, L) => (m === null || f(L) < f(m) ? L : m), null);
+      const [r1, r2] = riquadri(G, 0.5);
+      const p1 = piano(G, r1, { x0: -1, x1: 1, y0: -1.05, y1: 1.05, tx: [-1, 0, 1], ty: [-1, 0, 1], ex: "L", ey: "L  e  tanh((Tc/T)(L + h))" });
+      p1.curva(L => L, COL.freddo, 1.6, [6, 5]);
+      p1.curva(g, COL.oro);
+      radici.forEach(L => p1.punto(L, L, stabile(L) ? COL.ink : COL.tenue, stabile(L) ? 5 : 3.5));
+      const fl = [-0.999, ...Array.from({ length: 199 }, (_, i) => -0.99 + i * 0.01), 0.999].map(f);
+      const lo = Math.min(...fl), hi = Math.max(...fl);
+      const p2 = piano(G, r2, { x0: -1, x1: 1, y0: lo - 0.02 * (hi - lo + 1e-9), y1: lo + 1.1 * (hi - lo + 1e-9), tx: [-1, 0, 1], ex: "L", ey: "energia libera f(L)" });
+      p2.curva(f, COL.caldo, 2.4, [], -0.999, 0.999);
+      if (migliore !== null) p2.punto(migliore, f(migliore), COL.ink);
+      scrivi("t", fmt(t, 2)); scrivi("h", fmt(h, 3));
+      scrivi("L", migliore === null ? "—" : fmt(migliore, 3));
+      scrivi("n", String(radici.length) + (radici.length === 3 ? " (2 stabili)" : ""));
+      scrivi("chi", t > 1.0005 ? fmt(1 / (t - 1), 1) : t < 0.9995 ? "—" : "∞");
+    });
+  }
+
   /* ================= pannello laterale con la pagina originale (versione privata) ================= */
   function cassetto() {
     const box = document.querySelector(".cassetto");
@@ -694,7 +904,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });

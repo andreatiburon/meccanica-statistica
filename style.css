@@ -152,6 +152,7 @@ canvas.mappa { display: block; width: 100%; aspect-ratio: 16 / 9; cursor: grab; 
 @media (max-width: 1200px) { .impaginato { grid-template-columns: 196px minmax(0, 1fr); } .margine { grid-column: 2; } }
 @media (max-width: 880px) { .impaginato { grid-template-columns: minmax(0, 1fr); gap: 24px; } .margine { grid-column: 1; } .indice-art { position: static; } }
 .indice-art { position: sticky; top: 88px; font: 14px/1.35 var(--f-ui); max-height: calc(100vh - 116px); overflow-y: auto; }
+@media (max-width: 880px) { .indice-art { position: static; max-height: none; overflow: visible; } }
 .indice-art h2, .margine h2 { font: 600 11px/1.4 var(--f-ui); letter-spacing: .16em; text-transform: uppercase; color: var(--tenue); margin: 4px 0 10px; }
 .indice-art ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; counter-reset: s; }
 .indice-art li { counter-increment: s; }
@@ -336,6 +337,14 @@ details.ripasso ul { padding: 4px 24px 12px 40px; margin: 0; }
 .lab-guscio .guscio-grafico { aspect-ratio: 16 / 10; }
 .lab-guscio .lab-banco { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
 .lab-guscio .misure dd { white-space: nowrap; }
+/* laboratori piccoli larghi: grafico a tutta larghezza, comandi sotto */
+.lab-largo .lab-banco { grid-template-columns: minmax(0, 1fr); }
+.lab-largo canvas { aspect-ratio: 21 / 9; }
+.lab-largo .lab-letture { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 28px; align-items: start; }
+.lab-largo .lab-letture > .comandi { grid-column: 1 / -1; }
+@media (max-width: 600px) { .lab-largo canvas { aspect-ratio: 4 / 5; } .lab-largo .lab-letture { grid-template-columns: minmax(0, 1fr); } }
+.lab-uno canvas { aspect-ratio: 2 / 1; }
+@media (max-width: 600px) { .lab-uno canvas { aspect-ratio: 4 / 3; } }
 
 /* pannello laterale con la pagina originale (versione privata) */
 .cassetto { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 58px); right: 0; bottom: 0; width: min(580px, 94vw); z-index: 40; display: flex; flex-direction: column; background: var(--fondo-alto); border-left: 1px solid var(--filetto-chiaro); box-shadow: -24px 0 60px -20px rgba(0, 0, 0, .8); }
