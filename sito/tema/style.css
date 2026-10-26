@@ -343,6 +343,8 @@ details.ripasso ul { padding: 4px 24px 12px 40px; margin: 0; }
 .lab-largo .lab-letture { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px 28px; align-items: start; }
 .lab-largo .lab-letture > .comandi { grid-column: 1 / -1; }
 @media (max-width: 600px) { .lab-largo canvas { aspect-ratio: 4 / 5; } .lab-largo .lab-letture { grid-template-columns: minmax(0, 1fr); } }
+.lab-uno canvas { aspect-ratio: 2 / 1; }
+@media (max-width: 600px) { .lab-uno canvas { aspect-ratio: 4 / 3; } }
 
 /* pannello laterale con la pagina originale (versione privata) */
 .cassetto { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 58px); right: 0; bottom: 0; width: min(580px, 94vw); z-index: 40; display: flex; flex-direction: column; background: var(--fondo-alto); border-left: 1px solid var(--filetto-chiaro); box-shadow: -24px 0 60px -20px rgba(0, 0, 0, .8); }

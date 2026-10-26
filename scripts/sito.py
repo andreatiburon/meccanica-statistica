@@ -53,8 +53,7 @@ FILM_SEZIONI = {
                               "due-livelli": ["micro-due-livelli"], "probabilita-microscopiche": ["gas-maxwell"]},
     "insieme-canonico": {"serbatoio": ["can-serbatoio"], "maxwell": ["gas-maxwell"],
                          "distribuzione-energia": ["can-picco-energia"]},
-    "insieme-gran-canonico-e-npt": {"compressibilità-isoterma-e-fluttuazioni-di-n": ["gc-fluttuazioni-n"],
-                                    "insieme-npt": ["gc-npt"]},
+    "insieme-gran-canonico-e-npt": {"fluttuazioni": ["gc-fluttuazioni-n"], "npt": ["gc-npt"]},
     "gas-reali-viriale-e-van-der-waals": {"primo-coefficiente-del-viriale": ["reali-mayer"],
                                           "van-der-waals": ["reali-isoterme"],
                                           "costruzione-di-maxwell": ["reali-maxwell"]},
@@ -68,7 +67,7 @@ FILM_SEZIONI = {
 }
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
 # Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
-LEZIONI = {"insieme-microcanonico", "insieme-canonico"}
+LEZIONI = {"insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt"}
 LABORATORI = {
     "insieme-canonico": ("maxwell", "gas"),
     "modello-di-ising-e-campo-medio": ("ising-2d-e-bragg-williams", "ising"),
@@ -266,6 +265,17 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <div class="comandi"><button type="button" data-p="0.48">D = 3</button><button type="button" data-p="2">D = 100</button><button type="button" data-p="23.8">D ≈ 3N</button></div>
 </div></div>
 <figcaption><b>Laboratorio</b><i>Il volume sta nella buccia.</i> La curva è la probabilità che un punto preso a caso dentro una sfera a D dimensioni stia a distanza r dal centro, proporzionale a r<sup>D−1</sup>; la fascia gialla è il guscio esterno di spessore ε. Sposta D verso il numero di Avogadro e guarda dove finisce tutto il volume.</figcaption>
+</figure>""",
+"langmuir": """<figure class="lab lab-largo lab-uno" data-lab="langmuir">
+<div class="lab-banco">
+<canvas aria-label="Frazione di siti occupati in funzione della densità del gas, in scala logaritmica"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>βε (legame / energia termica)</span><output data-v="be">4</output></label><input type="range" min="0" max="12" step="0.1" value="4" data-c="be" aria-label="Energia di legame in unità di k_BT"></div>
+<div class="cursore"><label><span>densità del gas ρV<sub>b</sub></span><output data-v="x">–</output></label><input type="range" min="-6" max="2" step="0.01" value="-2" data-c="x" aria-label="Densità del gas, in scala logaritmica"></div>
+<dl class="misure"><dt>siti occupati f</dt><dd data-v="f">–</dd><dt>metà copertura a ρV<sub>b</sub> =</dt><dd data-v="mezzo">–</dd><dt>varianza per sito f(1−f)</dt><dd data-v="var">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"be": 8}'>legame forte</button><button type="button" data-imposta='{"be": 1}'>legame debole</button><button type="button" data-imposta='{"x": 1.5}'>gas denso</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Riempire una superficie.</i> La curva gialla è l'isoterma di Langmuir f = ρV<sub>b</sub>e<sup>βε</sup>/(1 + ρV<sub>b</sub>e<sup>βε</sup>); quella tratteggiata è il caso senza legame. La linea verticale segna la metà copertura, la fascia arancio la varianza f(1−f) dell'occupazione di un sito. Aumenta βε (legame più forte o temperatura più bassa) e guarda la curva scivolare verso densità sempre più piccole.</figcaption>
 </figure>""",
 "langevin": """<figure class="lab lab-largo" data-lab="langevin">
 <div class="lab-banco">

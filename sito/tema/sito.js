@@ -651,6 +651,12 @@
 
   /* ================= strumenti dei laboratori piccoli ================= */
   const etich = v => (typeof v === "string" ? v : String(v).replace(".", ","));
+  // numero in notazione scientifica leggibile: 0,034 oppure 2,5·10⁻⁷
+  function sci(x) {
+    if (x >= 1e-3 && x < 1e4) return x.toLocaleString("it-IT", { maximumSignificantDigits: 3 });
+    const e = Math.floor(Math.log10(x)), m = x / 10 ** e;
+    return `${fmt(m, 1)}·10${String(e).replace("-", "⁻").replace(/\d/g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹"[c])}`;
+  }
   // Piano cartesiano nel riquadro r del canvas: assi, tacche, etichette; restituisce le mappe e i disegnatori.
   function piano(G, r, o) {
     const { ctx } = G, m = Object.assign({ l: 40, r: 14, t: 22, b: 28 }, o.m || {});
@@ -745,6 +751,29 @@
     });
   }
 
+  /* ---- adsorbimento: isoterma di Langmuir */
+  function langmuir(box) {
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const be = val("be"), lx = val("x");
+      const f = (b, l) => { const y = Math.exp(l * Math.LN10 + b); return y / (1 + y); };
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: -6, x1: 2, y0: 0, y1: 1.08, tx: [-6, -4, -2, 0, 2], ty: [0, 0.5, 1], ex: "log₁₀ della densità", ey: "frazione di siti occupati f", m: { l: 40, r: 16, t: 22, b: 28 } });
+      p.orizzontale(0.5, COL.filetto);
+      p.curva(l => f(0, l), COL.freddo, 1.6, [6, 5]);
+      p.area(l => f(be, l) * (1 - f(be, l)) * 4 * 0.25, "rgba(242,149,99,.18)");
+      p.curva(l => f(be, l), COL.oro);
+      const mezzo = -be / Math.LN10;
+      if (mezzo >= -6) p.verticale(mezzo, COL.tenue);
+      p.punto(lx, f(be, lx), COL.ink);
+      p.scritta(0.15, 0.4, "βε = 0", COL.freddo);
+      const fl = f(be, lx);
+      scrivi("be", fmt(be, 1));
+      scrivi("x", sci(10 ** lx));
+      scrivi("f", fmt(fl * 100, 1) + " %");
+      scrivi("mezzo", sci(Math.exp(-be)));
+      scrivi("var", fmt(fl * (1 - fl), 3));
+    });
+  }
+
   /* ================= pannello laterale con la pagina originale (versione privata) ================= */
   function cassetto() {
     const box = document.querySelector(".cassetto");
@@ -790,7 +819,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });
