@@ -49,9 +49,8 @@ PAGINE_DISPENSE = {
 # Film (nome di uscita in sito/galleria/video/) in testa all'articolo e dentro le sezioni.
 FILM_TESTA = {"modello-di-ising-e-campo-medio": "ising"}
 FILM_SEZIONI = {
-    "insieme-microcanonico": {"entropia-e-additività": ["micro-scambio-energia"],
-                              "gas-perfetto-e-paradosso-di-gibbs": ["micro-gibbs"],
-                              "sistema-a-due-livelli": ["micro-due-livelli"]},
+    "insieme-microcanonico": {"equilibrio-termico": ["micro-scambio-energia"], "gibbs": ["micro-gibbs"],
+                              "due-livelli": ["micro-due-livelli"], "probabilita-microscopiche": ["gas-maxwell"]},
     "insieme-canonico": {"dal-serbatoio-al-peso-di-boltzmann": ["can-serbatoio"],
                          "gas-perfetto-e-maxwell-boltzmann": ["gas-maxwell"],
                          "distribuzione-dellenergia-ed-equivalenza-degli-ensemble": ["can-picco-energia"]},
@@ -69,6 +68,8 @@ FILM_SEZIONI = {
     "corpo-nero-e-solidi": {"corpo-nero": ["cn-modi", "planck"], "solidi-armonici": ["cn-solidi"]},
 }
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
+# Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
+LEZIONI = {"insieme-microcanonico"}
 LABORATORI = {
     "insieme-canonico": ("gas-perfetto-e-maxwell-boltzmann", "gas"),
     "modello-di-ising-e-campo-medio": ("ising-2d-e-bragg-williams", "ising"),
@@ -200,6 +201,80 @@ def ritocca(frammento, privato):
                        r'<p class="divergenza">\1</p>', frammento, flags=re.S)
     frammento = frammento.replace("<table>", '<div class="tabella"><table>').replace("</table>", "</table></div>")
     return frammento
+
+
+def sostituisci_div(frammento, classe, fn):
+    """Sostituisce ogni <div class="classe" …>…</div> (anche con div annidati) con fn(attributi, contenuto)."""
+    apertura = re.compile(r'<div class="%s"([^>]*)>' % re.escape(classe))
+    tag = re.compile(r"<div\b[^>]*>|</div>")
+    while True:
+        m = apertura.search(frammento)
+        if not m:
+            return frammento
+        prof, i = 1, m.end()
+        while prof:
+            t = tag.search(frammento, i)
+            prof += 1 if t.group(0).startswith("<div") else -1
+            i = t.end()
+        attr = dict(re.findall(r'data-([\w-]+)="([^"]*)"', m.group(1)))
+        frammento = frammento[:m.start()] + fn(attr, frammento[m.end():t.start()]) + frammento[i:]
+
+
+def elementi_lezione(frammento):
+    """Blocchi della lezione scritti nel markdown come div di pandoc (::: classe) -> elementi interattivi."""
+    def estrai(interno, classe):
+        trovato = {}
+
+        def prendi(_, x):
+            trovato["x"] = x
+            return ""
+        resto = sostituisci_div(interno, classe, prendi)
+        return resto.strip(), trovato.get("x", "")
+
+    def passaggi(attr, interno):
+        titolo = esc(attr.get("titolo", "Il conto, passo per passo"))
+        return (f'<details class="passaggi"><summary><span class="etichetta-box">Passaggi</span><span class="sommario">{titolo}</span></summary>'
+                f'<div class="passaggi-corpo">{interno}</div></details>')
+
+    def domanda(attr, interno):
+        testo, risposta = estrai(interno, "risposta")
+        testo = re.sub(r"</?p>", " ", testo).strip()
+        return (f'<details class="domanda"><summary><span class="etichetta-box">Domanda</span><span class="sommario">{testo}</span></summary>'
+                f'<div class="risposta">{risposta}</div></details>')
+
+    def esercizio(attr, interno):
+        testo, soluzione = estrai(interno, "soluzione")
+        return (f'<aside class="esercizio"><p class="etichetta-box">Esercizio svolto</p>{testo}'
+                f'<details class="soluzione"><summary>Mostra la soluzione, passo per passo</summary>'
+                f'<div class="soluzione-corpo">{soluzione}</div></details></aside>')
+
+    def laboratorio(attr, interno):
+        return LAB_PICCOLI.get(attr.get("tipo"), "")
+
+    for classe, fn in (("passaggi", passaggi), ("domanda", domanda), ("esercizio", esercizio),
+                       ("lab-segnaposto", laboratorio)):
+        frammento = sostituisci_div(frammento, classe, fn)
+    return frammento
+
+
+LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
+<div class="lab-banco">
+<canvas class="guscio-grafico" aria-label="Distribuzione del raggio di un punto a caso in una sfera a D dimensioni"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>dimensioni D</span><output data-v="D">3</output></label><input type="range" min="0" max="24" step="0.01" value="0.48" data-c="D" aria-label="Numero di dimensioni, in scala logaritmica"></div>
+<div class="cursore"><label><span>spessore del guscio ε</span><output data-v="eps">1 %</output></label><input type="range" min="-12" max="-0.3" step="0.01" value="-2" data-c="eps" aria-label="Spessore relativo del guscio, in scala logaritmica"></div>
+<dl class="misure"><dt>volume dentro il guscio</dt><dd data-v="frazione">–</dd><dt>raggio che dimezza il volume</dt><dd data-v="mezzo">–</dd></dl>
+<div class="comandi"><button type="button" data-p="0.48">D = 3</button><button type="button" data-p="2">D = 100</button><button type="button" data-p="23.8">D ≈ 3N</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Il volume sta nella buccia.</i> La curva è la probabilità che un punto preso a caso dentro una sfera a D dimensioni stia a distanza r dal centro, proporzionale a r<sup>D−1</sup>; la fascia gialla è il guscio esterno di spessore ε. Sposta D verso il numero di Avogadro e guarda dove finisce tutto il volume.</figcaption>
+</figure>"""}
+
+CASSETTO = """<aside class="cassetto" hidden aria-label="Pagina originale delle dispense">
+<div class="cassetto-testa"><span class="cassetto-titolo">Dispense · p. <b data-c="pag">–</b></span>
+<button type="button" data-c="prec" aria-label="Pagina precedente">‹</button><button type="button" data-c="succ" aria-label="Pagina successiva">›</button>
+<a data-c="apri" href="dispense.html">Apri nelle dispense</a><button type="button" data-c="chiudi" aria-label="Chiudi">Chiudi</button></div>
+<div class="cassetto-tela"><canvas></canvas><p class="cassetto-stato">Caricamento…</p></div>
+</aside>"""
 
 
 def filetto(seme, n=150, larghezza=1200, altezza=14):
@@ -384,7 +459,11 @@ class Sito:
         a = self.articoli[slug]
         md = lambda t: re.sub(r"\[\[([^\]|]+)(?:\|([^\]]+))?\]\]", self.sost, t)
         lede = ritocca(pandoc(md(a["lede_md"])), self.privato)
-        corpo = ritocca(pandoc(md(a["corpo_md"])), self.privato)
+        corpo = elementi_lezione(ritocca(pandoc(md(a["corpo_md"])), self.privato))
+        if slug in LEZIONI:
+            corpo = re.sub(r'(<section id="punti-chiave" class="level2">\s*<h2>Punti chiave</h2>\s*)(<ul>.*?</ul>)',
+                           r'\1<details class="ripasso"><summary>Ripasso in un minuto: apri i punti chiave</summary>\2</details>',
+                           corpo, count=1, flags=re.S)
         sezioni = re.findall(r'<section id="([^"]+)" class="level2">\s*<h2>(.*?)</h2>', corpo, re.S)
         ids = {i for i, _ in sezioni}
         for sez, nomi in FILM_SEZIONI.get(slug, {}).items():
@@ -453,8 +532,12 @@ class Sito:
 </aside>
 </div>
 </div>"""
+        testa_extra = ""
+        if self.privato:
+            corpo_pagina += CASSETTO
+            testa_extra = f'<script src="{PDFJS}/pdf.min.js"></script><script src="{PDFJS}/pdf.worker.min.js"></script>'
         self.pagine[f"{slug}.html"] = self.pagina(f'{a["titolo"]} · Meccanica Statistica', self.formule.segna(corpo_pagina),
-                                                  None, testo_semplice(lede)[:180])
+                                                  None, testo_semplice(lede)[:180], extra_testa=testa_extra)
 
     # ---- home
     def home(self):
@@ -462,7 +545,7 @@ class Sito:
         for i, slug in enumerate(PERCORSO, 1):
             a = self.articoli[slug]
             nf = sum(len(v) for v in FILM_SEZIONI.get(slug, {}).values()) + (1 if slug in FILM_TESTA else 0)
-            extra = [f"{nf} film"] if nf else []
+            extra = (["lezione completa"] if slug in LEZIONI else []) + ([f"{nf} film"] if nf else [])
             if slug in LABORATORI:
                 extra.append("laboratorio")
             figure = f'<p class="figs">{" · ".join(extra)}</p>' if extra else ""

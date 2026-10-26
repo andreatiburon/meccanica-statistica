@@ -59,6 +59,20 @@ Usa sempre i `[[wikilink]]`. Linka anche le entità importanti che non hanno anc
 
 Prima di creare un articolo, cerca se ne esiste già uno simile: preferisci aggiornare l'articolo esistente. Se due articoli si sovrappongono, segnalalo e proponi un merge.
 
+## Lezioni
+Un articolo di argomento del corso diventa una **lezione** completa, da poter studiare e ripassare. Mantiene la struttura sopra (frontmatter, H1, introduzione, Punti chiave, corpo, Articoli correlati, Fonti), con il tag `lezione` e lo slug in `LEZIONI` dentro `scripts/sito.py`. Il corpo:
+- segue il filo logico di appunti e dispense **quasi integralmente**: ogni passaggio dice che cosa si fa, perché e che cosa si ottiene, senza saltare conti. Nel sito pubblico il testo è scritto con parole nostre; le dispense non si copiano alla lettera;
+- comincia con `## L'idea in breve {#idea}`: un'analogia alla Feynman e la mappa della lezione con i link alle sezioni;
+- usa id espliciti per le sezioni (`## Titolo {#id}`), che servono a `FILM_SEZIONI`;
+- usa questi blocchi di pandoc, che il sito rende interattivi:
+  - `::: idea` per l'intuizione in parole semplici e `::: attenzione` per trappole, sviste delle fonti e limiti;
+  - `:::: {.passaggi titolo="…"}` per i conti completi, che il sito mostra chiusi e apribili;
+  - `:::: domanda` con dentro `::: risposta`, per la sezione finale `## Mettiti alla prova {#mettiti-alla-prova}` (5-8 domande da spiegare a voce);
+  - `:::: esercizio` con dentro `::: soluzione`, per almeno un esercizio svolto;
+  - `::: {.lab-segnaposto tipo="…"}` per un laboratorio piccolo definito in `LAB_PICCOLI`;
+- cita ogni blocco con `(Dispense, p. N)` e `(Appunti MS, p. N)`. Nella versione privata le citazioni delle dispense aprono la pagina originale in un pannello laterale;
+- quando una fonte ha una svista, la segnala in un `::: attenzione` con il valore corretto e la dicitura «calcolo mio».
+
 ## Comandi
 - **`compile`** elabora i file di `raw/` che non hanno `_COMPILED` nel nome. Per ogni file:
   1. leggilo; per i PDF usa la procedura a pagine descritta sopra;
