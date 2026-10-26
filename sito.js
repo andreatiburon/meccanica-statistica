@@ -601,8 +601,100 @@
     });
   }
 
+  /* ================= laboratorio: il volume sta nella buccia ================= */
+  function guscio(box) {
+    const cv = box.querySelector(".guscio-grafico");
+    const out = k => box.querySelector(`[data-v="${k}"]`);
+    const cD = box.querySelector('[data-c="D"]'), cE = box.querySelector('[data-c="eps"]');
+    let G = prepara(cv);
+    const apice = n => String(n).replace("-", "⁻").replace(/\d/g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹"[c]);
+    const potenza = x => {
+      if (x >= 1e-3 && x < 1e4) return x.toLocaleString("it-IT", { maximumFractionDigits: x < 10 ? 3 : 0 });
+      const e = Math.floor(Math.log10(x)), m = x / 10 ** e;
+      return `${fmt(m, 1)}·10${apice(e)}`;
+    };
+    const percento = f => (f > 0.9999 ? "più del 99,99 %" : f < 1e-4 ? fmt(f * 100, 6) + " %" : fmt(f * 100, 2) + " %");
+    function disegna() {
+      const D = 10 ** +cD.value, eps = 10 ** +cE.value;
+      const { ctx, w, h } = G, m = { l: 36, r: 14, t: 16, b: 30 };
+      const X = r => m.l + r * (w - m.l - m.r), Y = f => h - m.b - f * (h - m.t - m.b);
+      ctx.fillStyle = COL.notte; ctx.fillRect(0, 0, w, h);
+      // guscio esterno [1-ε, 1]
+      ctx.fillStyle = "rgba(242,193,78,.18)";
+      const x0 = X(Math.max(0, 1 - eps));
+      ctx.fillRect(Math.min(x0, X(1) - 2), m.t, Math.max(X(1) - x0, 2), h - m.t - m.b);
+      // densità del raggio normalizzata al massimo: r^(D-1)
+      ctx.strokeStyle = COL.oro; ctx.lineWidth = 2.4; ctx.beginPath();
+      const passi = Math.round(w - m.l - m.r);
+      for (let k = 0; k <= passi; k++) {
+        const r = k / passi, f = r === 0 ? (D <= 1 ? 1 : 0) : Math.exp((D - 1) * Math.log(r));
+        k ? ctx.lineTo(X(r), Y(f)) : ctx.moveTo(X(r), Y(f));
+      }
+      ctx.lineTo(X(1), Y(1)); ctx.stroke();
+      ctx.strokeStyle = COL.filetto; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(m.l, h - m.b + 0.5); ctx.lineTo(w - m.r, h - m.b + 0.5); ctx.stroke();
+      ctx.fillStyle = COL.tenue; ctx.font = "11px 'JetBrains Mono', monospace"; ctx.textAlign = "center";
+      [0, 0.25, 0.5, 0.75, 1].forEach(r => ctx.fillText(fmt(r, 2), X(r), h - 10));
+      ctx.textAlign = "left"; ctx.fillText("r / R", m.l, m.t + 2);
+      const frazione = -Math.expm1(D * Math.log1p(-eps));
+      const mezzo = -Math.expm1(-Math.LN2 / D);
+      out("D").textContent = potenza(D);
+      out("eps").textContent = eps >= 0.01 ? fmt(eps * 100, 1) + " %" : potenza(eps);
+      out("frazione").textContent = percento(frazione);
+      out("mezzo").textContent = mezzo < 1e-3 ? `(1 − ${potenza(mezzo)}) R` : `${fmt(1 - mezzo, 3)} R`;
+    }
+    cD.addEventListener("input", disegna);
+    cE.addEventListener("input", disegna);
+    box.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { cD.value = b.dataset.p; disegna(); }));
+    ridisegni.push(() => { G = prepara(cv); disegna(); });
+    disegna();
+  }
+
+  /* ================= pannello laterale con la pagina originale (versione privata) ================= */
+  function cassetto() {
+    const box = document.querySelector(".cassetto");
+    if (!box) return;
+    const lib = window.pdfjsLib;
+    const cv = box.querySelector("canvas"), tela = box.querySelector(".cassetto-tela"), stato = box.querySelector(".cassetto-stato");
+    const etichetta = box.querySelector('[data-c="pag"]'), apri = box.querySelector('[data-c="apri"]');
+    let doc = null, pag = 1, lavoro = null;
+    async function mostra(n) {
+      if (!lib) { stato.textContent = "Il visore PDF non si è caricato."; return; }
+      if (!doc) {
+        try { doc = await lib.getDocument("dispense/dispense.pdf").promise; }
+        catch (e) { stato.textContent = "Non riesco ad aprire le dispense: " + e.message; return; }
+      }
+      pag = Math.max(1, Math.min(doc.numPages, n));
+      etichetta.textContent = pag;
+      apri.href = "dispense.html#p" + pag;
+      const p = await doc.getPage(pag);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const scala = (tela.clientWidth - 24) / p.getViewport({ scale: 1 }).width;
+      const vp = p.getViewport({ scale: scala * dpr });
+      if (lavoro) lavoro.cancel();
+      cv.width = vp.width; cv.height = vp.height;
+      cv.style.width = vp.width / dpr + "px"; cv.style.height = vp.height / dpr + "px";
+      stato.hidden = true;
+      lavoro = p.render({ canvasContext: cv.getContext("2d"), viewport: vp });
+      try { await lavoro.promise; } catch (e) { /* pagina sostituita da una più recente */ }
+    }
+    document.addEventListener("click", e => {
+      const a = e.target.closest('a.cit[href^="dispense.html#p"]');
+      if (!a || e.metaKey || e.ctrlKey) return;
+      e.preventDefault();
+      box.hidden = false;
+      document.body.classList.add("con-cassetto");
+      mostra(+a.getAttribute("href").split("#p")[1]);
+    });
+    box.querySelector('[data-c="prec"]').onclick = () => mostra(pag - 1);
+    box.querySelector('[data-c="succ"]').onclick = () => mostra(pag + 1);
+    box.querySelector('[data-c="chiudi"]').onclick = () => { box.hidden = true; document.body.classList.remove("con-cassetto"); };
+    addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) box.querySelector('[data-c="chiudi"]').click(); });
+    ridisegni.push(() => { if (!box.hidden) mostra(pag); });
+  }
+
   /* ================= avvio ================= */
-  const avvii = { sciame, gas, ising, mappa, dispense };
+  cassetto();
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });
