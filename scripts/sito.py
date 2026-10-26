@@ -56,8 +56,7 @@ FILM_SEZIONI = {
     "insieme-gran-canonico-e-npt": {"fluttuazioni": ["gc-fluttuazioni-n"], "npt": ["gc-npt"]},
     "gas-reali-viriale-e-van-der-waals": {"secondo-coefficiente": ["reali-mayer"], "isoterme": ["reali-isoterme"],
                                           "coesistenza": ["reali-maxwell"]},
-    "modello-di-ising-e-campo-medio": {"ising-1d-esatto": ["ising-1d"],
-                                       "ising-2d-e-bragg-williams": ["ising-bragg-williams"]},
+    "modello-di-ising-e-campo-medio": {"ising-1d": ["ising-1d"], "bragg-williams": ["ising-bragg-williams"]},
     "gas-quantistici-ideali": {"dal-conteggio-dei-microstati-ai-numeri-di-occupazione": ["qg-occupazioni"],
                                "passaggio-al-continuo": ["qg-tre-statistiche"],
                                "fermioni-a-bassa-temperatura": ["qg-mare-fermi"],
@@ -67,10 +66,10 @@ FILM_SEZIONI = {
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
 # Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
 LEZIONI = {"insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt",
-           "gas-reali-viriale-e-van-der-waals"}
+           "gas-reali-viriale-e-van-der-waals", "modello-di-ising-e-campo-medio"}
 LABORATORI = {
     "insieme-canonico": ("maxwell", "gas"),
-    "modello-di-ising-e-campo-medio": ("ising-2d-e-bragg-williams", "ising"),
+    "modello-di-ising-e-campo-medio": ("interfacce", "ising"),
 }
 ETICHETTE_MAPPA = {
     "insieme-microcanonico": "Microcanonico", "insieme-canonico": "Canonico",
@@ -197,7 +196,7 @@ def ritocca(frammento, privato):
     # paragrafi in cui le fonti divergono
     frammento = re.sub(r"<p>((?:(?!</p>).)*?(?:divergono|divergenza)(?:(?!</p>).)*)</p>",
                        r'<p class="divergenza">\1</p>', frammento, flags=re.S)
-    frammento = frammento.replace("<table>", '<div class="tabella"><table>').replace("</table>", "</table></div>")
+    frammento = re.sub(r"<table[^>]*>", '<div class="tabella"><table>', frammento).replace("</table>", "</table></div>")
     return frammento
 
 
@@ -287,9 +286,20 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 </div></div>
 <figcaption><b>Laboratorio</b><i>Aree uguali.</i> La curva gialla è l'isoterma ridotta π(φ) di Van der Waals; il segmento arancio è la pressione di coesistenza trovata con la costruzione di Maxwell, e i due lobi colorati hanno la stessa area. I punti grigi sono gli spinodali, la linea tratteggiata grigia è la cupola di coesistenza, quella azzurra l'isoterma critica. Abbassa θ fino a vedere l'isoterma scendere sotto zero: è il liquido in tensione.</figcaption>
 </figure>""",
+"campo-medio": """<figure class="lab lab-largo" data-lab="campo-medio">
+<div class="lab-banco">
+<canvas aria-label="Soluzione grafica dell'equazione di campo medio ed energia libera di Bragg-Williams"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>temperatura T/T<sub>c</sub></span><output data-v="t">0,8</output></label><input type="range" min="0.3" max="1.6" step="0.005" value="0.8" data-c="t" aria-label="Temperatura in unità della temperatura critica"></div>
+<div class="cursore"><label><span>campo h = H/k<sub>B</sub>T<sub>c</sub></span><output data-v="h">0</output></label><input type="range" min="-0.3" max="0.3" step="0.002" value="0" data-c="h" aria-label="Campo esterno in unità di k_B T_c"></div>
+<dl class="misure"><dt>magnetizzazione di equilibrio L̄</dt><dd data-v="L">–</dd><dt>soluzioni dell'equazione</dt><dd data-v="n">–</dd><dt>suscettività k<sub>B</sub>T<sub>c</sub>χ a h = 0</dt><dd data-v="chi">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"t": 1.3, "h": 0}'>sopra T<sub>c</sub></button><button type="button" data-imposta='{"t": 0.8, "h": 0}'>sotto T<sub>c</sub></button><button type="button" data-imposta='{"t": 0.8, "h": -0.05}'>campo opposto</button><button type="button" data-imposta='{"t": 1.0, "h": 0}'>T = T<sub>c</sub></button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>La magnetizzazione che si sostiene da sola.</i> Il primo grafico mostra la retta y = L e la curva tanh((T<sub>c</sub>/T)(L + h)): le intersezioni sono le soluzioni dell'equazione di Bragg-Williams, bianche quelle stabili, grigie quelle instabili. Il secondo mostra l'energia libera per sito f(L), con il minimo di equilibrio. Scendi sotto T<sub>c</sub> e guarda la scodella diventare una W; poi accendi un piccolo campo e guarda uno dei due minimi vincere.</figcaption>
+</figure>""",
 "langevin": """<figure class="lab lab-largo" data-lab="langevin">
 <div class="lab-banco">
-<canvas aria-label="A sinistra la funzione di Langevin e la retta di Curie, a destra la distribuzione di cos θ"></canvas>
+<canvas aria-label="Funzione di Langevin con la retta di Curie, e distribuzione di cos θ"></canvas>
 <div class="lab-letture">
 <div class="cursore"><label><span>α = βμE (campo / temperatura)</span><output data-v="a">1</output></label><input type="range" min="0" max="15" step="0.01" value="1" data-c="a" aria-label="Rapporto tra energia del dipolo nel campo e energia termica"></div>
 <dl class="misure"><dt>⟨cos θ⟩ = 𝓛(α)</dt><dd data-v="L">–</dd><dt>legge di Curie α/3</dt><dd data-v="curie">–</dd><dt>errore di Curie</dt><dd data-v="err">–</dd></dl>

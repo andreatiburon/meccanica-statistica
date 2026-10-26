@@ -824,6 +824,42 @@
     });
   }
 
+  /* ---- campo medio: soluzione grafica di L = tanh((Tc/T)(L + h)) ed energia libera di Bragg-Williams */
+  function campoMedio(box) {
+    const ent = L => { const p = (1 + L) / 2, q = (1 - L) / 2; return (p > 0 ? p * Math.log(p) : 0) + (q > 0 ? q * Math.log(q) : 0); };
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const t = val("t"), h = val("h");
+      const g = L => Math.tanh((L + h) / t);
+      const f = L => -h * L - L * L / 2 + t * ent(L);           // in unità di k_B T_c, a meno di costanti
+      // radici di g(L) - L su [-1, 1]
+      const radici = [], n = 800;
+      let xa = -1, ya = g(-1) + 1;
+      for (let k = 1; k <= n; k++) {
+        const xb = -1 + 2 * k / n, yb = g(xb) - xb;
+        if (ya === 0) radici.push(xa);
+        else if (ya * yb < 0) { let a = xa, b = xb, fa = ya; for (let i = 0; i < 60; i++) { const c = (a + b) / 2, fc = g(c) - c; if ((fc > 0) === (fa > 0)) { a = c; fa = fc; } else b = c; } radici.push((a + b) / 2); }
+        xa = xb; ya = yb;
+      }
+      const stabile = L => (1 - g(L) ** 2) / t < 1;
+      const migliore = radici.filter(stabile).reduce((m, L) => (m === null || f(L) < f(m) ? L : m), null);
+      const [r1, r2] = riquadri(G, 0.5);
+      const p1 = piano(G, r1, { x0: -1, x1: 1, y0: -1.05, y1: 1.05, tx: [-1, 0, 1], ty: [-1, 0, 1], ex: "L", ey: "L  e  tanh((Tc/T)(L + h))" });
+      p1.curva(L => L, COL.freddo, 1.6, [6, 5]);
+      p1.curva(g, COL.oro);
+      radici.forEach(L => p1.punto(L, L, stabile(L) ? COL.ink : COL.tenue, stabile(L) ? 5 : 3.5));
+      const fl = [-0.999, ...Array.from({ length: 199 }, (_, i) => -0.99 + i * 0.01), 0.999].map(f);
+      const lo = Math.min(...fl), hi = Math.max(...fl);
+      const p2 = piano(G, r2, { x0: -1, x1: 1, y0: lo - 0.02 * (hi - lo + 1e-9), y1: lo + 1.1 * (hi - lo + 1e-9), tx: [-1, 0, 1], ex: "L", ey: "energia libera f(L)" });
+      p2.curva(f, COL.caldo, 2.4, [], -0.999, 0.999);
+      if (migliore !== null) p2.punto(migliore, f(migliore), COL.ink);
+      scrivi("t", fmt(t, 2)); scrivi("h", fmt(h, 3));
+      const simmetrico = Math.abs(h) < 1e-9 && radici.length === 3;
+      scrivi("L", migliore === null ? "—" : (simmetrico ? "±" : "") + fmt(simmetrico ? Math.abs(migliore) : migliore, 3));
+      scrivi("n", radici.length === 3 ? "3, due stabili" : String(radici.length));
+      scrivi("chi", t > 1.0005 ? fmt(1 / (t - 1), 1) : t < 0.9995 ? "—" : "∞");
+    });
+  }
+
   /* ================= pannello laterale con la pagina originale (versione privata) ================= */
   function cassetto() {
     const box = document.querySelector(".cassetto");
@@ -869,7 +905,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });
