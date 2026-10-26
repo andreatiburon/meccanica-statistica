@@ -42,7 +42,7 @@ PERCORSO = [
 FONTI = ["corso-e-lezioni", "appunti-anno-scorso", "dispense-ed-esami"]
 PAGINE_DISPENSE = {
     "insieme-microcanonico": "pp. 43–71", "insieme-canonico": "pp. 72–117",
-    "insieme-gran-canonico-e-npt": "pp. 118–131", "gas-reali-viriale-e-van-der-waals": "pp. 132–140",
+    "insieme-gran-canonico-e-npt": "pp. 118–131", "gas-reali-viriale-e-van-der-waals": "pp. 132–143",
     "modello-di-ising-e-campo-medio": "pp. 143–169", "gas-quantistici-ideali": "pp. 170–206",
     "corpo-nero-e-solidi": "pp. 207–219",
 }
@@ -54,9 +54,8 @@ FILM_SEZIONI = {
     "insieme-canonico": {"serbatoio": ["can-serbatoio"], "maxwell": ["gas-maxwell"],
                          "distribuzione-energia": ["can-picco-energia"]},
     "insieme-gran-canonico-e-npt": {"fluttuazioni": ["gc-fluttuazioni-n"], "npt": ["gc-npt"]},
-    "gas-reali-viriale-e-van-der-waals": {"primo-coefficiente-del-viriale": ["reali-mayer"],
-                                          "van-der-waals": ["reali-isoterme"],
-                                          "costruzione-di-maxwell": ["reali-maxwell"]},
+    "gas-reali-viriale-e-van-der-waals": {"secondo-coefficiente": ["reali-mayer"], "isoterme": ["reali-isoterme"],
+                                          "coesistenza": ["reali-maxwell"]},
     "modello-di-ising-e-campo-medio": {"ising-1d-esatto": ["ising-1d"],
                                        "ising-2d-e-bragg-williams": ["ising-bragg-williams"]},
     "gas-quantistici-ideali": {"dal-conteggio-dei-microstati-ai-numeri-di-occupazione": ["qg-occupazioni"],
@@ -67,7 +66,8 @@ FILM_SEZIONI = {
 }
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
 # Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
-LEZIONI = {"insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt"}
+LEZIONI = {"insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt",
+           "gas-reali-viriale-e-van-der-waals"}
 LABORATORI = {
     "insieme-canonico": ("maxwell", "gas"),
     "modello-di-ising-e-campo-medio": ("ising-2d-e-bragg-williams", "ising"),
@@ -276,6 +276,16 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <div class="comandi"><button type="button" data-imposta='{"be": 8}'>legame forte</button><button type="button" data-imposta='{"be": 1}'>legame debole</button><button type="button" data-imposta='{"x": 1.5}'>gas denso</button></div>
 </div></div>
 <figcaption><b>Laboratorio</b><i>Riempire una superficie.</i> La curva gialla è l'isoterma di Langmuir f = ρV<sub>b</sub>e<sup>βε</sup>/(1 + ρV<sub>b</sub>e<sup>βε</sup>); quella tratteggiata è il caso senza legame. La linea verticale segna la metà copertura, la fascia arancio la varianza f(1−f) dell'occupazione di un sito. Aumenta βε (legame più forte o temperatura più bassa) e guarda la curva scivolare verso densità sempre più piccole.</figcaption>
+</figure>""",
+"vdw": """<figure class="lab lab-largo lab-uno" data-lab="vdw">
+<div class="lab-banco">
+<canvas aria-label="Isoterma ridotta di Van der Waals con la costruzione di Maxwell"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>temperatura ridotta θ = T/T<sub>c</sub></span><output data-v="th">0,9</output></label><input type="range" min="0.6" max="1.2" step="0.002" value="0.9" data-c="th" aria-label="Temperatura ridotta"></div>
+<dl class="misure"><dt>pressione di coesistenza π</dt><dd data-v="pc">–</dd><dt>volume del liquido φ</dt><dd data-v="fl">–</dd><dt>volume del vapore φ</dt><dd data-v="fg">–</dd><dt>densità liquido / vapore</dt><dd data-v="r">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"th": 0.9}'>θ = 0,9</button><button type="button" data-imposta='{"th": 0.97}'>vicino al punto critico</button><button type="button" data-imposta='{"th": 0.65}'>liquido in tensione</button><button type="button" data-imposta='{"th": 1.1}'>sopra T<sub>c</sub></button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Aree uguali.</i> La curva gialla è l'isoterma ridotta π(φ) di Van der Waals; il segmento arancio è la pressione di coesistenza trovata con la costruzione di Maxwell, e i due lobi colorati hanno la stessa area. I punti grigi sono gli spinodali, la linea tratteggiata grigia è la cupola di coesistenza, quella azzurra l'isoterma critica. Abbassa θ fino a vedere l'isoterma scendere sotto zero: è il liquido in tensione.</figcaption>
 </figure>""",
 "langevin": """<figure class="lab lab-largo" data-lab="langevin">
 <div class="lab-banco">

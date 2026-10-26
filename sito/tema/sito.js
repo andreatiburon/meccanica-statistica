@@ -774,6 +774,56 @@
     });
   }
 
+  /* ---- Van der Waals: isoterma ridotta, spinodale e costruzione di Maxwell */
+  function vdw(box) {
+    const bis = (g, a, b) => { let ga = g(a); for (let k = 0; k < 90; k++) { const c = (a + b) / 2, gc = g(c); if ((gc > 0) === (ga > 0)) { a = c; ga = gc; } else b = c; } return (a + b) / 2; };
+    // per θ < 1: punti spinodali, pressione di coesistenza e volumi delle due fasi
+    function maxwell(th) {
+      const pi = f => 8 * th / (3 * f - 1) - 3 / (f * f), prim = f => 8 * th / 3 * Math.log(3 * f - 1) + 3 / f;
+      const h = f => (3 * f - 1) ** 2 - 4 * th * f ** 3;
+      const sl = bis(h, 1 / 3 + 1e-9, 1), sg = bis(h, 1, 1e3);
+      const radici = p => [bis(f => pi(f) - p, 1 / 3 + 1e-9, sl), bis(f => pi(f) - p, sg, 1e5)];
+      const area = p => { const [a, b] = radici(p); return prim(b) - prim(a) - p * (b - a); };
+      const pc = bis(area, Math.max(pi(sl), 0) + 1e-12, pi(sg) - 1e-12);
+      const [fl, fg] = radici(pc);
+      return { sl, sg, pc, fl, fg, pi };
+    }
+    const cupola = [];
+    for (let th = 0.6; th < 0.9995; th += 0.01) { const m = maxwell(th); cupola.push([m.fl, m.pc], [m.fg, m.pc]); }
+    const binodale = cupola.filter((_, i) => i % 2 === 0).concat([[1, 1]], cupola.filter((_, i) => i % 2).reverse());
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const th = val("th"), pi = f => 8 * th / (3 * f - 1) - 3 / (f * f);
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: 0.35, x1: 4, y0: -0.6, y1: 2.2, tx: [1, 2, 3, 4], ty: [0, 1, 2], ex: "φ = V/Vc", ey: "π = P/Pc" });
+      p.orizzontale(0, COL.filetto, []);
+      // cupola di coesistenza
+      const { ctx } = G;
+      ctx.save(); ctx.beginPath(); ctx.rect(p.X(0.35), p.Y(2.2), p.X(4) - p.X(0.35), p.Y(-0.6) - p.Y(2.2)); ctx.clip();
+      ctx.strokeStyle = "rgba(154,163,186,.55)"; ctx.lineWidth = 1.2; ctx.setLineDash([3, 4]); ctx.beginPath();
+      binodale.forEach(([x, y], i) => (i ? ctx.lineTo(p.X(x), p.Y(y)) : ctx.moveTo(p.X(x), p.Y(y))));
+      ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+      p.curva(f => 8 / (3 * f - 1) - 3 / (f * f), COL.freddo, 1.4, [6, 5], 0.4, 4);
+      if (th < 0.9995) {
+        const m = maxwell(th);
+        // i due lobi di area uguale
+        ctx.save(); ctx.beginPath(); ctx.rect(p.X(0.35), p.Y(2.2), p.X(4) - p.X(0.35), p.Y(-0.6) - p.Y(2.2)); ctx.clip();
+        ctx.fillStyle = "rgba(242,149,99,.28)"; ctx.beginPath(); ctx.moveTo(p.X(m.fl), p.Y(m.pc));
+        const n = 240;
+        for (let k = 0; k <= n; k++) { const f = m.fl + (m.fg - m.fl) * k / n; ctx.lineTo(p.X(f), p.Y(pi(f))); }
+        ctx.closePath(); ctx.fill(); ctx.restore();
+        p.curva(pi, COL.oro, 2.4, [], 0.36, 4);
+        ctx.strokeStyle = COL.caldo; ctx.lineWidth = 2.2; ctx.beginPath(); ctx.moveTo(p.X(m.fl), p.Y(m.pc)); ctx.lineTo(p.X(m.fg), p.Y(m.pc)); ctx.stroke();
+        p.punto(m.fl, m.pc, COL.ink, 4.5); p.punto(m.fg, m.pc, COL.ink, 4.5);
+        p.punto(m.sl, pi(m.sl), COL.tenue, 3.5); p.punto(m.sg, pi(m.sg), COL.tenue, 3.5);
+        scrivi("pc", fmt(m.pc, 3)); scrivi("fl", fmt(m.fl, 3)); scrivi("fg", fmt(m.fg, 2)); scrivi("r", fmt(m.fg / m.fl, 2));
+      } else {
+        p.curva(pi, COL.oro, 2.4, [], 0.36, 4);
+        ["pc", "fl", "fg", "r"].forEach(k => scrivi(k, "—"));
+      }
+      p.scritta(3.95, 0.66, "isoterma critica", COL.freddo, "right");
+      scrivi("th", fmt(th, 3));
+    });
+  }
+
   /* ================= pannello laterale con la pagina originale (versione privata) ================= */
   function cassetto() {
     const box = document.querySelector(".cassetto");
@@ -819,7 +869,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });
