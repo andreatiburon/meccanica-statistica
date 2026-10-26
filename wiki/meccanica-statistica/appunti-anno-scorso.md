@@ -58,7 +58,7 @@ Questo elenco riporta solo gli errori che cambiano un risultato. Refusi minori e
 | Gas quantistico, $\rho\lambda^3$ (p. 61) | $\pm\frac2{\sqrt\pi}\int\ldots$ | senza $\pm$ davanti | dispense, p. 181 |
 | Gas reale, NPT (p. 33) | $e^{-\beta(H_1+\beta PV_1)}$ | $e^{-\beta(H_1+PV_1)}$ | refuso |
 
-La divergenza su Fermi, spiegata: quaderno e dispense sostituiscono $\mu\to\varepsilon_F$ nell'energia senza usare la correzione $\mu(T)=\varepsilon_F[1-\frac{\pi^2}{12}(k_B T/\varepsilon_F)^2]$ ricavata subito prima. Includendola si ottiene $\frac{5\pi^2}{12}$, quindi $C_V=\frac{\pi^2}2Nk_B\,\frac{k_B T}{\varepsilon_F}$. Questo calcolo è mio. Il risultato è quello standard dei manuali, ma qui non è stato verificato su una pagina di libro del vault.
+La divergenza su Fermi, spiegata: quaderno e dispense sostituiscono $\mu\to\varepsilon_F$ nell'energia senza usare la correzione $\mu(T)=\varepsilon_F[1-\frac{\pi^2}{12}(k_B T/\varepsilon_F)^2]$ ricavata subito prima. Includendola si ottiene $\frac{5\pi^2}{12}$, quindi $C_V=\frac{\pi^2}2Nk_B\,\frac{k_B T}{\varepsilon_F}$. Questo calcolo è mio. Il risultato è quello standard dei manuali; non è verificato su una pagina di libro del vault, ma è confermato numericamente dal laboratorio del gas di Fermi in [[gas-quantistici-ideali]], che calcola $E(T)$ esatta: a $k_BT=0{,}1\,\varepsilon_F$ dà 1,0405, contro 1,0411 con $rac{5\pi^2}{12}$ e 1,0617 con $rac{5\pi^2}{8}$.
 
 ## Articoli correlati
 - [[meccanica-statistica/corso-e-lezioni]]: lo stato del corso di quest'anno, costruito sugli appunti nuovi.
