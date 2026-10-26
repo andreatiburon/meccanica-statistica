@@ -59,13 +59,13 @@ FILM_SEZIONI = {
     "modello-di-ising-e-campo-medio": {"ising-1d": ["ising-1d"], "bragg-williams": ["ising-bragg-williams"]},
     "gas-quantistici-ideali": {"numeri-occupazione": ["qg-occupazioni"], "fermioni-bosoni": ["qg-tre-statistiche"],
                                "fermi-zero": ["qg-mare-fermi"], "condensazione": ["qg-saturazione", "bose-einstein"]},
-    "corpo-nero-e-solidi": {"corpo-nero": ["cn-modi", "planck"], "solidi-armonici": ["cn-solidi"]},
+    "corpo-nero-e-solidi": {"rayleigh-jeans": ["cn-modi"], "predizioni": ["planck"], "debye": ["cn-solidi"]},
 }
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
 # Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
 LEZIONI = {"insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt",
            "gas-reali-viriale-e-van-der-waals", "modello-di-ising-e-campo-medio",
-           "gas-quantistici-ideali"}
+           "gas-quantistici-ideali", "corpo-nero-e-solidi"}
 LABORATORI = {
     "insieme-canonico": ("maxwell", "gas"),
     "modello-di-ising-e-campo-medio": ("interfacce", "ising"),
@@ -315,6 +315,26 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <div class="comandi"><button type="button" data-imposta='{"t": 2}'>gas quasi classico</button><button type="button" data-imposta='{"t": 1}'>T = T<sub>c</sub></button><button type="button" data-imposta='{"t": 0.5}'>condensato</button></div>
 </div></div>
 <figcaption><b>Laboratorio</b><i>Il parcheggio pieno.</i> Il primo grafico è la soluzione di g<sub>3/2</sub>(z) = ρλ³: la linea tratteggiata è ρλ³, che sale raffreddando come T<sup>−3/2</sup>. Finché incontra la curva, z &lt; 1 e non c'è condensato; quando supera 2,612 non c'è più soluzione, z si blocca a 1 e il tratto arancio è la parte che finisce nel condensato. Il secondo grafico mostra la frazione condensata (azzurra) e il calore specifico (giallo), con la sua cuspide in T<sub>c</sub>.</figcaption>
+</figure>""",
+"planck": """<figure class="lab lab-largo lab-uno" data-lab="planck">
+<div class="lab-banco">
+<canvas aria-label="Spettro di corpo nero di Planck confrontato con Rayleigh-Jeans"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>temperatura</span><output data-v="T">5800 K</output></label><input type="range" min="2.5" max="4.1" step="0.002" value="3.763" data-c="lt" aria-label="Temperatura, in scala logaritmica"></div>
+<dl class="misure"><dt>λ<sub>max</sub> (Wien)</dt><dd data-v="lm">–</dd><dt>potenza emessa σT⁴</dt><dd data-v="sig">–</dd><dt>energia nel visibile</dt><dd data-v="vis">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"lt": 2.477}'>corpo umano</button><button type="button" data-imposta='{"lt": 3.447}'>lampadina</button><button type="button" data-imposta='{"lt": 3.763}'>Sole</button><button type="button" data-imposta='{"lt": 4.0}'>stella blu</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Il biglietto d'ingresso.</i> La curva gialla è lo spettro di Planck in lunghezza d'onda, normalizzato al suo massimo; quella tratteggiata è la previsione classica di Rayleigh-Jeans, che esplode verso le lunghezze d'onda corte. La fascia colorata è il visibile. Scalda il corpo e guarda il massimo spostarsi secondo la legge di Wien, mentre la potenza emessa cresce come T⁴.</figcaption>
+</figure>""",
+"solidi": """<figure class="lab lab-largo" data-lab="solidi">
+<div class="lab-banco">
+<canvas aria-label="Calore specifico dei solidi secondo Dulong-Petit, Einstein e Debye, in scala lineare e logaritmica"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>temperatura T/θ</span><output data-v="t">0,1</output></label><input type="range" min="0.01" max="1.5" step="0.001" value="0.1" data-c="t" aria-label="Temperatura in unità della temperatura caratteristica"></div>
+<dl class="misure"><dt>Einstein C<sub>V</sub>/3Nk<sub>B</sub></dt><dd data-v="e">–</dd><dt>Debye C<sub>V</sub>/3Nk<sub>B</sub></dt><dd data-v="d">–</dd><dt>Debye / Einstein</dt><dd data-v="r">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"t": 1}'>T = θ</button><button type="button" data-imposta='{"t": 0.1}'>T = θ/10</button><button type="button" data-imposta='{"t": 0.03}'>molto freddo</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Perché i solidi freddi non assorbono calore.</i> Nel primo grafico il calore specifico di Einstein (azzurro) e di Debye (giallo), con la stessa temperatura caratteristica θ, contro il valore classico di Dulong-Petit. Nel secondo, in scala logaritmica, si vede la differenza vera: Einstein crolla esponenzialmente, Debye scende come T³ (la retta arancio tratteggiata). Le onde sonore lunghe restano attive a qualunque temperatura.</figcaption>
 </figure>""",
 "langevin": """<figure class="lab lab-largo" data-lab="langevin">
 <div class="lab-banco">
