@@ -57,16 +57,15 @@ FILM_SEZIONI = {
     "gas-reali-viriale-e-van-der-waals": {"secondo-coefficiente": ["reali-mayer"], "isoterme": ["reali-isoterme"],
                                           "coesistenza": ["reali-maxwell"]},
     "modello-di-ising-e-campo-medio": {"ising-1d": ["ising-1d"], "bragg-williams": ["ising-bragg-williams"]},
-    "gas-quantistici-ideali": {"dal-conteggio-dei-microstati-ai-numeri-di-occupazione": ["qg-occupazioni"],
-                               "passaggio-al-continuo": ["qg-tre-statistiche"],
-                               "fermioni-a-bassa-temperatura": ["qg-mare-fermi"],
-                               "bosoni-a-bassa-temperatura-condensazione": ["qg-saturazione", "bose-einstein"]},
+    "gas-quantistici-ideali": {"numeri-occupazione": ["qg-occupazioni"], "fermioni-bosoni": ["qg-tre-statistiche"],
+                               "fermi-zero": ["qg-mare-fermi"], "condensazione": ["qg-saturazione", "bose-einstein"]},
     "corpo-nero-e-solidi": {"corpo-nero": ["cn-modi", "planck"], "solidi-armonici": ["cn-solidi"]},
 }
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
 # Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
 LEZIONI = {"insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt",
-           "gas-reali-viriale-e-van-der-waals", "modello-di-ising-e-campo-medio"}
+           "gas-reali-viriale-e-van-der-waals", "modello-di-ising-e-campo-medio",
+           "gas-quantistici-ideali"}
 LABORATORI = {
     "insieme-canonico": ("maxwell", "gas"),
     "modello-di-ising-e-campo-medio": ("interfacce", "ising"),
@@ -296,6 +295,26 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <div class="comandi"><button type="button" data-imposta='{"t": 1.3, "h": 0}'>sopra T<sub>c</sub></button><button type="button" data-imposta='{"t": 0.8, "h": 0}'>sotto T<sub>c</sub></button><button type="button" data-imposta='{"t": 0.8, "h": -0.05}'>campo opposto</button><button type="button" data-imposta='{"t": 1.0, "h": 0}'>T = T<sub>c</sub></button></div>
 </div></div>
 <figcaption><b>Laboratorio</b><i>La magnetizzazione che si sostiene da sola.</i> Il primo grafico mostra la retta y = L e la curva tanh((T<sub>c</sub>/T)(L + h)): le intersezioni sono le soluzioni dell'equazione di Bragg-Williams, bianche quelle stabili, grigie quelle instabili. Il secondo mostra l'energia libera per sito f(L), con il minimo di equilibrio. Scendi sotto T<sub>c</sub> e guarda la scodella diventare una W; poi accendi un piccolo campo e guarda uno dei due minimi vincere.</figcaption>
+</figure>""",
+"fermi": """<figure class="lab lab-largo lab-uno" data-lab="fermi">
+<div class="lab-banco">
+<canvas aria-label="Densità degli stati e stati occupati di un gas di Fermi a temperatura finita"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>temperatura k<sub>B</sub>T/ε<sub>F</sub></span><output data-v="t">0,1</output></label><input type="range" min="0" max="1.2" step="0.002" value="0.1" data-c="t" aria-label="Temperatura in unità dell'energia di Fermi"></div>
+<dl class="misure"><dt>μ/ε<sub>F</sub> esatto</dt><dd data-v="mu">–</dd><dt>μ/ε<sub>F</sub> Sommerfeld</dt><dd data-v="muS">–</dd><dt>E/E(0) esatto</dt><dd data-v="E">–</dd><dt>E/E(0) Sommerfeld, 5π²/12</dt><dd data-v="ES">–</dd><dt>E/E(0) con 5π²/8 (dispense)</dt><dd data-v="ED">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"t": 0}'>T = 0</button><button type="button" data-imposta='{"t": 0.05}'>metallo caldo</button><button type="button" data-imposta='{"t": 0.15}'>k<sub>B</sub>T = 0,15 ε<sub>F</sub></button><button type="button" data-imposta='{"t": 1}'>verso il classico</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Il mare di Fermi si sfuma.</i> La curva tratteggiata è la densità degli stati g(ε) ∝ √ε, quella gialla l'occupazione n(ε), l'area arancio gli stati effettivamente occupati. Il potenziale chimico μ è calcolato esattamente imponendo che il numero di particelle resti fisso, e l'energia per integrazione numerica. Confronta i numeri esatti con lo sviluppo di Sommerfeld: per k<sub>B</sub>T ≲ 0,15 ε<sub>F</sub> il coefficiente giusto è 5π²/12, non 5π²/8.</figcaption>
+</figure>""",
+"bose": """<figure class="lab lab-largo" data-lab="bose">
+<div class="lab-banco">
+<canvas aria-label="Soluzione grafica di g_3/2(z) = ρλ³, frazione condensata e calore specifico del gas di Bose"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>temperatura T/T<sub>c</sub></span><output data-v="t">1,5</output></label><input type="range" min="0.05" max="2.5" step="0.005" value="1.5" data-c="t" aria-label="Temperatura in unità della temperatura critica"></div>
+<dl class="misure"><dt>ρλ³</dt><dd data-v="r">–</dd><dt>fugacità z</dt><dd data-v="z">–</dd><dt>βμ</dt><dd data-v="bm">–</dd><dt>frazione condensata N₀/N</dt><dd data-v="f0">–</dd><dt>C<sub>V</sub>/Nk<sub>B</sub></dt><dd data-v="cv">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"t": 2}'>gas quasi classico</button><button type="button" data-imposta='{"t": 1}'>T = T<sub>c</sub></button><button type="button" data-imposta='{"t": 0.5}'>condensato</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Il parcheggio pieno.</i> Il primo grafico è la soluzione di g<sub>3/2</sub>(z) = ρλ³: la linea tratteggiata è ρλ³, che sale raffreddando come T<sup>−3/2</sup>. Finché incontra la curva, z &lt; 1 e non c'è condensato; quando supera 2,612 non c'è più soluzione, z si blocca a 1 e il tratto arancio è la parte che finisce nel condensato. Il secondo grafico mostra la frazione condensata (azzurra) e il calore specifico (giallo), con la sua cuspide in T<sub>c</sub>.</figcaption>
 </figure>""",
 "langevin": """<figure class="lab lab-largo" data-lab="langevin">
 <div class="lab-banco">

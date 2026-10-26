@@ -860,6 +860,91 @@
     });
   }
 
+  /* ---- gas di Fermi in 3D: unità ε_F = 1, g(ε) ∝ √ε, N fissato */
+  function fermi(box) {
+    // ∫_0^∞ ε^q n(ε) dε con ε = u²: integrando liscio, Simpson
+    const momento = (q, m, t) => {
+      const sup = Math.sqrt(Math.max(m, 0) + 40 * t + 1e-9), n = 1200, h = sup / n;
+      let s = 0;
+      for (let k = 0; k <= n; k++) {
+        const u = k * h, e = u * u, x = (e - m) / t;
+        const f = 2 * u * e ** q / (x > 50 ? Infinity : Math.exp(x) + 1);
+        s += f * (k === 0 || k === n ? 1 : k % 2 ? 4 : 2);
+      }
+      return s * h / 3;
+    };
+    const mu = t => {
+      if (t < 2e-3) return 1;
+      let a = -30 * t - 5, b = 1.5;
+      for (let i = 0; i < 70; i++) { const c = (a + b) / 2; if (momento(0.5, c, t) > 2 / 3) b = c; else a = c; }
+      return (a + b) / 2;
+    };
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const t = val("t"), m = mu(t);
+      const n = e => (t < 2e-3 ? (e < 1 ? 1 : 0) : 1 / (Math.exp(Math.min((e - m) / t, 60)) + 1));
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: 0, x1: 2.5, y0: 0, y1: 1.7, tx: [0, 0.5, 1, 1.5, 2, 2.5], ty: [0, 0.5, 1, 1.5], ex: "ε / εF", ey: "g(ε), stati occupati g(ε)n(ε), occupazione n(ε)" });
+      p.area(e => Math.sqrt(e) * n(e), "rgba(242,149,99,.32)");
+      p.curva(e => Math.sqrt(e), COL.tenue, 1.4, [5, 4]);
+      p.curva(e => Math.sqrt(e) * n(e), COL.caldo, 2);
+      p.curva(n, COL.oro, 2.2);
+      p.verticale(1, COL.filetto);
+      if (m > 0) { p.verticale(m, COL.ink, [3, 3]); p.scritta(m, 1.55, " μ", COL.ink, m > 2.2 ? "right" : "left"); }
+      const E = t < 2e-3 ? 1 : momento(1.5, m, t) / 0.4;
+      scrivi("t", fmt(t, 3));
+      scrivi("mu", fmt(m, 4)); scrivi("muS", fmt(1 - Math.PI ** 2 * t * t / 12, 4));
+      scrivi("E", fmt(E, 4)); scrivi("ES", fmt(1 + 5 * Math.PI ** 2 * t * t / 12, 4)); scrivi("ED", fmt(1 + 5 * Math.PI ** 2 * t * t / 8, 4));
+    });
+  }
+
+  /* ---- gas di Bose in 3D: saturazione degli stati eccitati e condensato */
+  function bose(box) {
+    const Z32 = 2.612375348685488, Z52 = 1.341487257250917, Z12 = -1.4603545088095868;
+    const g = (nu, z) => {
+      if (z <= 0) return 0;
+      const a = -Math.log(z);
+      if (a < 0.01) {
+        if (nu === 0.5) return Math.sqrt(Math.PI / a) + Z12;
+        if (nu === 1.5) return Z32 - 2 * Math.sqrt(Math.PI * a) - Z12 * a;
+        return Z52 - Z32 * a + (4 / 3) * Math.sqrt(Math.PI) * a ** 1.5;
+      }
+      let s = 0, zk = 1;
+      for (let k = 1; k < 20000; k++) { zk *= z; const d = zk / k ** nu; s += d; if (d < 1e-10) break; }
+      return s;
+    };
+    const zDi = r => { if (r >= Z32) return 1; let a = 0, b = 1; for (let i = 0; i < 50; i++) { const c = (a + b) / 2; if (g(1.5, c) > r) b = c; else a = c; } return (a + b) / 2; };
+    const cv = t => {
+      if (t <= 1) return 3.75 * Z52 / Z32 * t ** 1.5;
+      const z = zDi(Z32 * t ** -1.5);
+      return 3.75 * g(2.5, z) / g(1.5, z) - 2.25 * g(1.5, z) / g(0.5, z);
+    };
+    const curvaCv = Array.from({ length: 161 }, (_, i) => { const t = 0.01 + i * 2.49 / 160; return [t, cv(t)]; });
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const t = val("t"), r = Z32 * t ** -1.5, z = zDi(r), f0 = Math.max(0, 1 - t ** 1.5);
+      const [r1, r2] = riquadri(G);
+      const p1 = piano(G, r1, { x0: 0, x1: 1, y0: 0, y1: 4.2, tx: [0, 0.5, 1], ty: [0, 1, 2, 2.612, 4], ex: "z = e^βμ", ey: "ρλ³ e g₃/₂(z)" });
+      p1.orizzontale(Z32, COL.filetto);
+      p1.curva(x => g(1.5, x), COL.oro, 2.4, [], 0, 0.9995);
+      p1.orizzontale(Math.min(r, 4.2), COL.caldo, [6, 4]);
+      if (r <= Z32) p1.punto(z, r, COL.ink);
+      else {
+        const { ctx } = G; ctx.strokeStyle = COL.caldo; ctx.lineWidth = 5; ctx.beginPath();
+        ctx.moveTo(p1.X(1) - 3, p1.Y(Z32)); ctx.lineTo(p1.X(1) - 3, p1.Y(Math.min(r, 4.2))); ctx.stroke();
+        p1.punto(1, Z32, COL.ink);
+        p1.scritta(0.97, Math.min((Z32 + Math.min(r, 4.2)) / 2, 4), "condensato ", COL.caldo, "right");
+      }
+      const p2 = piano(G, r2, { x0: 0, x1: 2.5, y0: 0, y1: 2.1, tx: [0, 1, 2], ty: [0, 1, 2], ex: "T / Tc", ey: "N₀/N e CV/NkB" });
+      p2.orizzontale(1.5, COL.filetto);
+      p2.curva(x => Math.max(0, 1 - x ** 1.5), COL.freddo, 2);
+      const { ctx } = G; ctx.strokeStyle = COL.oro; ctx.lineWidth = 2.2; ctx.beginPath();
+      curvaCv.forEach(([x, y], i) => (i ? ctx.lineTo(p2.X(x), p2.Y(y)) : ctx.moveTo(p2.X(x), p2.Y(y)))); ctx.stroke();
+      p2.verticale(t, COL.tenue);
+      p2.punto(t, f0, COL.freddo, 4.5); p2.punto(t, cv(t), COL.ink, 4.5);
+      p2.scritta(0.08, 1.62, "classico 3/2", COL.tenue);
+      scrivi("t", fmt(t, 2)); scrivi("r", fmt(r, 3)); scrivi("z", z >= 1 ? "1" : fmt(z, 4));
+      scrivi("bm", z >= 1 ? "0" : fmt(Math.log(z), 3)); scrivi("f0", fmt(f0 * 100, 1) + " %"); scrivi("cv", fmt(cv(t), 3));
+    });
+  }
+
   /* ================= pannello laterale con la pagina originale (versione privata) ================= */
   function cassetto() {
     const box = document.querySelector(".cassetto");
@@ -905,7 +990,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio, fermi, bose };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });
