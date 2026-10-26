@@ -347,6 +347,34 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <figcaption><b>Laboratorio</b><i>Il campo ordina, la temperatura disordina.</i> Un grafico mostra la probabilità dell'orientazione, proporzionale a e<sup>α cos θ</sup>: per α piccolo è quasi piatta, per α grande si schiaccia verso cos θ = 1. L'altro mostra la media ⟨cos θ⟩, la funzione di Langevin, con la retta tratteggiata della legge di Curie. Guarda fin dove la retta resta una buona approssimazione.</figcaption>
 </figure>"""}
 
+# Righe delle dispense tolte dalla versione privata: nomi dei docenti e indirizzi di pagine personali.
+ANONIMO = re.compile(r"(?i)sciortin|crisanti|giardina|grilli|caprara|\bpro(?:f|ff|\ufb00|\u21b5)\.|infn\.it|https?:|www\.")
+
+
+def dispense_anonime():
+    """PDF delle dispense con le righe di ANONIMO rimosse davvero (redazione, non una copertura grafica)."""
+    dest = TESTO / "dispense-anonime.pdf"
+    if dest.exists() and dest.stat().st_mtime > max(PDF.stat().st_mtime, Path(__file__).stat().st_mtime):
+        return dest
+    import pymupdf
+    doc = pymupdf.open(PDF)
+    for pagina in doc:
+        righe = [riga["bbox"] for blocco in pagina.get_text("dict")["blocks"] for riga in blocco.get("lines", [])
+                 if ANONIMO.search("".join(s["text"] for s in riga["spans"]))]
+        for x0, y0, x1, y1 in righe:  # riquadro ristretto in altezza, per non toccare le righe vicine
+            pagina.add_redact_annot(pymupdf.Rect(x0, y0 + 0.3 * (y1 - y0), x1, y1 - 0.3 * (y1 - y0)))
+        if pagina.number == 0:
+            for r in pagina.search_for("Le pagine dei documenti originali non sono state"):
+                pagina.add_redact_annot(r + (0, 0, 200, 0), text="Versione anonima: tolti i nomi dei docenti e gli indirizzi personali.",
+                                        fontsize=9)
+            righe = righe or ["copertina"]
+        if righe:
+            pagina.apply_redactions(images=pymupdf.PDF_REDACT_IMAGE_NONE, graphics=pymupdf.PDF_REDACT_LINE_ART_NONE)
+    doc.set_metadata({"title": "Meccanica Statistica - dispense", "author": "", "subject": "", "keywords": "", "creator": "", "producer": ""})
+    doc.save(dest, garbage=4, deflate=True)
+    return dest
+
+
 CASSETTO = """<aside class="cassetto" hidden aria-label="Pagina originale delle dispense">
 <div class="cassetto-testa"><span class="cassetto-titolo">Dispense · p. <b data-c="pag">–</b></span>
 <button type="button" data-c="prec" aria-label="Pagina precedente">‹</button><button type="button" data-c="succ" aria-label="Pagina successiva">›</button>
@@ -825,9 +853,10 @@ class Sito:
                     shutil.copy(VIDEO / f"{n}{est}", self.out / "video" / f"{n}{est}")
         if self.privato:
             (self.out / "dispense").mkdir()
-            shutil.copy(PDF, self.out / "dispense" / "dispense.pdf")
+            shutil.copy(dispense_anonime(), self.out / "dispense" / "dispense.pdf")
             pagine = sorted(TESTO.glob("p*.txt"), key=lambda p: int(p.stem[1:]))
-            testo = [re.sub(r"[ \t]+", " ", p.read_text()).strip() for p in pagine]
+            testo = ["\n".join(r for r in re.sub(r"[ \t]+", " ", p.read_text()).strip().splitlines() if not ANONIMO.search(r))
+                     for p in pagine]
             (self.out / "dispense" / "testo.json").write_text(json.dumps(testo, ensure_ascii=False))
         (self.out / ".nojekyll").write_text("")
         print(f"{self.out.name}/: {len(self.pagine)} pagine, {len(self.formule.lista)} formule, {len(self.film)} film")
