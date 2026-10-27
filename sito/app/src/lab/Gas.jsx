@@ -160,9 +160,9 @@ export default function Gas() {
         </div>
       </>}>
       <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))" }}>
-        <canvas ref={scatola} onPointerDown={tocca} className="aspect-[3/2] w-full touch-none rounded-bozza-sm"
+        <canvas ref={scatola} onPointerDown={tocca} className="aspect-[3/2] w-full touch-none rounded-piccolo"
           aria-label="Scatola con 300 dischi colorati secondo la velocità" />
-        <canvas ref={istogramma} className="aspect-[3/2] w-full rounded-bozza-sm" aria-label="Istogramma delle velocità e curva di Maxwell-Boltzmann" />
+        <canvas ref={istogramma} className="aspect-[3/2] w-full rounded-piccolo" aria-label="Istogramma delle velocità e curva di Maxwell-Boltzmann" />
       </div>
     </Cornice>
   );

@@ -34,7 +34,7 @@ export default function Home() {
               Queste pagine spiegano come da miliardi di particelle escano poche grandezze termodinamiche: dal postulato di uguale
               probabilità all'insieme canonico, fino ai gas quantistici e al corpo nero.
             </p>
-            <div className="grid gap-1 rounded-bozza border border-filetto/80 bg-superficie/70 p-4 font-ui backdrop-blur">
+            <div className="grid gap-1 rounded-scheda border border-filetto/80 bg-superficie/70 p-4 font-ui backdrop-blur">
               <label htmlFor="home-T" className="flex items-baseline justify-between text-[0.84rem] text-testo-2">
                 <span>Temperatura del titolo</span>
                 <output htmlFor="home-T" className="tabulare text-[1rem] text-caldo">{fmt(T, 2)}</output>
@@ -48,7 +48,7 @@ export default function Home() {
         {lezUltima && (
           <motion.button type="button" onClick={() => apri(lezUltima.slug, ultimo.sezione)} whileTap={{ scale: 0.99 }}
             onPointerDown={() => carica(lezUltima.slug).catch(() => {})}
-            className="mb-14 flex w-full items-center gap-4 rounded-bozza border border-accento/40 bg-accento/[0.07] p-5 text-left font-ui transition-colors hover:bg-accento/10">
+            className="mb-14 flex w-full items-center gap-4 rounded-scheda border border-accento/40 bg-accento/[0.07] p-5 text-left font-ui transition-colors hover:bg-accento/10">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-accento text-fondo"><Gioca size={18} /></span>
             <span className="min-w-0 flex-1">
               <span className="block text-[0.84rem] font-semibold text-accento">Riprendi da dove eri</span>
@@ -68,12 +68,12 @@ export default function Home() {
           ))}
         </ol>
 
-        <Titoletto titolo="Cineteca" sotto={`${film.length} film Manim che si fermano a ogni passo. Toccane uno per guardarlo in grande.`} />
+        <Titoletto titolo="Cineteca" sotto={`${film.length} film Manim che scorrono con il tempo di leggere ogni passo. Toccane uno per guardarlo in grande.`} />
         <div className="scorri-x -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2">
           {film.map(([nome, f]) => (
             <motion.button key={nome} type="button" onClick={() => apriFilm(nome)} whileTap={{ scale: 0.98 }}
               className="group grid w-[280px] shrink-0 snap-start gap-2 text-left font-ui">
-              <span className="relative block aspect-video overflow-hidden rounded-bozza-sm border border-filetto/70 bg-[#0B1020]">
+              <span className="relative block aspect-video overflow-hidden rounded-piccolo border border-filetto/70 bg-schermo">
                 <img src={`video/${nome}.jpg`} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
                 <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-[0.72rem] tabulare text-white">{durata(f.durata)}</span>
               </span>
@@ -90,7 +90,7 @@ export default function Home() {
             return (
               <li key={nome}>
                 <button type="button" disabled={!pronto} onClick={() => apri(x.slug, x.sezione)}
-                  className={`flex h-full w-full items-start gap-3 rounded-bozza border p-4 text-left font-ui transition-colors
+                  className={`flex h-full w-full items-start gap-3 rounded-scheda border p-4 text-left font-ui transition-colors
                     ${pronto ? "border-accento/45 bg-accento/[0.06] hover:bg-accento/10" : "border-filetto/60 opacity-60"}`}>
                   <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${pronto ? "bg-accento/15 text-accento" : "bg-testo/5 text-tenue"}`}><IconaLab size={18} /></span>
                   <span className="min-w-0">
@@ -109,7 +109,7 @@ export default function Home() {
           {indice.fonti.map(f => (
             <li key={f.slug}>
               <button type="button" onClick={() => apri(f.slug)}
-                className="grid h-full w-full gap-1 rounded-bozza border border-filetto/80 bg-superficie/50 p-4 text-left font-ui transition-colors hover:border-accento/50">
+                className="grid h-full w-full gap-1 rounded-scheda border border-filetto/80 bg-superficie/50 p-4 text-left font-ui transition-colors hover:border-accento/50">
                 <span className="font-display text-[1.1rem] text-testo">{f.breve}</span>
                 <span className="text-[0.82rem] leading-snug text-testo-2 [&_.katex]:text-[1em]" dangerouslySetInnerHTML={{ __html: f.descrizione }} />
               </button>
@@ -139,7 +139,7 @@ const Scheda = memo(function Scheda({ l, apri }) {
   return (
     <motion.button type="button" onClick={() => apri(l.slug)} onPointerDown={() => carica(l.slug).catch(() => {})}
       whileTap={{ scale: 0.985 }} transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      className="group grid h-full w-full grid-rows-[auto_1fr] overflow-hidden rounded-bozza border border-filetto/80 bg-superficie/60 text-left font-ui transition-colors hover:border-accento/50">
+      className="group grid h-full w-full grid-rows-[auto_1fr] overflow-hidden rounded-scheda border border-filetto/80 bg-superficie/60 text-left font-ui transition-colors hover:border-accento/50">
       <span className="relative block aspect-[16/6] overflow-hidden bg-schermo">
         {l.film[0] ? <img src={`video/${l.film[0]}.jpg`} alt="" loading="lazy" className="h-full w-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-[1.04]" />
           : <Campione seme={l.slug} />}

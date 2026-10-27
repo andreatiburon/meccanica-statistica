@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from comune import CALDO, FONDO, FREDDO, INCHIOSTRO, MONO, ORO, SERIF, SPENTO, TENUE, Lezione, etichetta  # noqa: E402
 from manim import *  # noqa: E402
 
-# Palette e caratteri vengono da comune.py (tema scelto con TEMA_FILM).
+# Palette e caratteri vengono da comune.py.
 
 config.background_color = FONDO
 

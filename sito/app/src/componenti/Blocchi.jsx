@@ -45,15 +45,15 @@ export const Prosa = memo(function Prosa({ html, className = "" }) {
 });
 
 function Etichetta({ children, className = "" }) {
-  return <p className={`etichetta-mano m-0 font-ui text-[0.84rem] font-semibold ${className}`}>{children}</p>;
+  return <p className={`m-0 font-ui text-[0.84rem] font-semibold ${className}`}>{children}</p>;
 }
 
 /* L'intuizione e le trappole: due riquadri con un ruolo fisso, riconoscibili a colpo d'occhio. */
 function Riquadro({ tipo, blocchi }) {
   const idea = tipo === "idea";
   return (
-    <aside className={`${idea ? "blocco-idea border-idea/30 bg-idea/[0.07]" : "border-attenzione/40 bg-attenzione/[0.06]"}
-      grid gap-2 rounded-bozza border px-5 py-4`}>
+    <aside className={`${idea ? "border-idea/30 bg-idea/[0.07]" : "border-attenzione/40 bg-attenzione/[0.06]"}
+      grid gap-2 rounded-scheda border px-5 py-4`}>
       <Etichetta className={idea ? "text-idea" : "text-attenzione"}>{idea ? "L'idea, in parole semplici" : "Attenzione"}</Etichetta>
       <Blocchi blocchi={blocchi} dentro />
     </aside>
@@ -64,10 +64,10 @@ function Riquadro({ tipo, blocchi }) {
 function Passaggi({ titolo, blocchi }) {
   const [aperto, setAperto] = useState(false);
   return (
-    <section data-lavagna-no className={`rounded-bozza border transition-colors ${aperto ? "border-accento/40 bg-superficie/70" : "border-filetto bg-superficie/40"}`}>
+    <section data-lavagna-no className={`rounded-scheda border transition-colors ${aperto ? "border-accento/40 bg-superficie/70" : "border-filetto bg-superficie/40"}`}>
       <button type="button" onClick={() => setAperto(a => !a)} aria-expanded={aperto}
         className="flex min-h-[56px] w-full items-center gap-3 px-5 py-3 text-left font-ui">
-        <span className="etichetta-mano text-[0.84rem] font-semibold text-accento">Passaggi</span>
+        <span className="text-[0.84rem] font-semibold text-accento">Passaggi</span>
         <span className="min-w-0 flex-1 text-[0.95rem] font-medium leading-snug text-testo">{titolo}</span>
         <motion.span animate={{ rotate: aperto ? 180 : 0 }} className="text-tenue"><Giu size={18} /></motion.span>
       </button>
@@ -117,7 +117,7 @@ function Mazzo({ domande }) {
             initial="entra" animate="qui" exit="esce" transition={{ type: "spring", stiffness: 300, damping: 30 }}
             drag="x" dragDirectionLock dragConstraints={{ left: 0, right: 0 }} dragElastic={0.25}
             onDragEnd={(_, info) => { if (info.offset.x < -70) vai(1); else if (info.offset.x > 70) vai(-1); }}
-            className="grid gap-4 rounded-bozza border border-filetto bg-superficie p-5 shadow-lg shadow-black/10">
+            className="grid gap-4 rounded-scheda border border-filetto bg-superficie p-5 shadow-lg shadow-black/10">
             <div className="font-testo text-[1.08rem] leading-relaxed text-testo"><Blocchi blocchi={d.blocchi} dentro /></div>
             <AnimatePresence initial={false}>
               {girata && (
@@ -171,7 +171,7 @@ function Esercizio({ b }) {
   }, [b.soluzione]);
   const [visti, setVisti] = useState(0);
   return (
-    <section data-lavagna-no className="grid gap-4 rounded-bozza border border-filetto bg-superficie/60 p-5">
+    <section data-lavagna-no className="grid gap-4 rounded-scheda border border-filetto bg-superficie/60 p-5">
       <Etichetta className="text-entropia">Esercizio svolto</Etichetta>
       <Blocchi blocchi={b.blocchi} dentro />
       <div className="grid gap-[1em] border-t border-filetto/70 pt-4">
@@ -207,7 +207,7 @@ function Esercizio({ b }) {
 function Segnaposto({ icona, etichetta, titolo, sotto, azione, onClick }) {
   return (
     <button type="button" onClick={onClick} disabled={!onClick}
-      className="group flex w-full items-center gap-4 rounded-bozza border border-dashed border-accento/45 bg-accento/[0.06] px-5 py-4 text-left font-ui transition-colors enabled:hover:bg-accento/10">
+      className="group flex w-full items-center gap-4 rounded-scheda border border-dashed border-accento/45 bg-accento/[0.06] px-5 py-4 text-left font-ui transition-colors enabled:hover:bg-accento/10">
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-accento/15 text-accento">{icona}</span>
       <span className="min-w-0 flex-1">
         <span className="block text-[0.84rem] font-semibold text-accento">{etichetta}</span>

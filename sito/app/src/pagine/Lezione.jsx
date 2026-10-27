@@ -6,7 +6,6 @@ import Barra, { BottoneBarra } from "../componenti/Barra.jsx";
 import Blocchi, { Prosa } from "../componenti/Blocchi.jsx";
 import { LezioneCtx } from "../componenti/contesto.js";
 import Film from "../componenti/Film.jsx";
-import Filetto from "../componenti/Filetto.jsx";
 import { Avanti, Chiudi, Elenco, Film as IconaFilm, Formula, Giu, Indietro, Lab as IconaLab, Spunta, Su } from "../componenti/icone.jsx";
 import LABORATORI from "../lab/index.js";
 
@@ -157,11 +156,11 @@ export default function Lezione({ slug }) {
 
       <div className="mx-auto max-w-[1240px] pb-32" style={{ paddingLeft: "max(16px, env(safe-area-inset-left, 0px))", paddingRight: "max(16px, env(safe-area-inset-right, 0px))" }}>
         <div className={largo ? "grid grid-cols-[minmax(0,1fr)_min(480px,40vw)] gap-10" : "mx-auto max-w-[720px]"}>
-          <article className="colonna-testo min-w-0" onClick={clic}>
+          <article className="min-w-0" onClick={clic}>
             <Testata voce={voce} art={art} conteggi={conteggi} />
             {art && sezioni.map((s, k) => <Sezione key={s.id} s={s} k={k} slug={slug} />)}
             {art && tutte && <Coda art={art} prec={prec} succ={succ} apri={apri} />}
-            {!art && <div className="mt-10 h-40 animate-pulse rounded-bozza bg-testo/5" />}
+            {!art && <div className="mt-10 h-40 animate-pulse rounded-scheda bg-testo/5" />}
           </article>
           {largo && art && (
             <Banco art={art} sez={sez} indiceSez={indiceSez} scelta={scelta} richiamo={richiamo}
@@ -199,7 +198,6 @@ function Testata({ voce, art, conteggi }) {
         {voce?.numero ? `Lezione ${voce.numero} di 10` : "Fonte del corso"}{voce?.pagine ? `, dispense alle ${voce.pagine}` : ""}
       </p>
       <h1 className="m-0 font-display text-[clamp(2.4rem,5.4vw,3.6rem)] font-medium leading-[1.04] tracking-[-0.01em] text-testo">{voce?.titolo}</h1>
-      <Filetto seme={voce?.slug ?? "x"} n={140} />
       {art && <Prosa html={art.lede} className="text-[1.12em] italic text-testo-2" />}
       {conteggi.length > 0 && (
         <ul className="m-0 flex list-none flex-wrap gap-2 p-0 font-ui">
@@ -211,7 +209,7 @@ function Testata({ voce, art, conteggi }) {
         </ul>
       )}
       {art?.punti && (
-        <div className="rounded-bozza border border-filetto bg-superficie/50">
+        <div className="rounded-scheda border border-filetto bg-superficie/50">
           <button type="button" onClick={() => setRipasso(r => !r)} aria-expanded={ripasso}
             className="flex min-h-[56px] w-full items-center gap-3 px-5 text-left font-ui">
             <span className="text-[0.95rem] font-semibold text-testo">Ripasso in un minuto</span>
@@ -242,7 +240,6 @@ const Sezione = memo(function Sezione({ s, k, slug }) {
           <span className="tabulare text-[0.62em] font-normal text-tenue">{k + 1}</span>
           <span dangerouslySetInnerHTML={{ __html: s.titolo }} />
         </h2>
-        <Filetto seme={slug + s.id} n={60} />
       </div>
       <Blocchi blocchi={s.blocchi} />
     </section>
@@ -261,7 +258,7 @@ function Coda({ art, prec, succ, apri }) {
       <div className="grid gap-3 sm:grid-cols-2">
         {[[prec, "Lezione precedente", Indietro], [succ, "Lezione successiva", Avanti]].map(([l, nome, Icona]) => l ? (
           <motion.button key={nome} type="button" onClick={() => apri(l.slug)} whileTap={{ scale: 0.98 }}
-            className="grid content-start gap-1 rounded-bozza border border-filetto bg-superficie/60 p-5 text-left font-ui transition-colors hover:border-accento/50">
+            className="grid content-start gap-1 rounded-scheda border border-filetto bg-superficie/60 p-5 text-left font-ui transition-colors hover:border-accento/50">
             <span className="flex items-center gap-1 text-[0.84rem] font-semibold text-tenue"><Icona size={14} />{nome}</span>
             <span className="font-display text-[1.25rem] leading-snug text-testo"><span className="tabulare text-accento">{l.numero}</span> {l.breve}</span>
           </motion.button>
@@ -286,7 +283,7 @@ function Banco({ art, sez, indiceSez, scelta, richiamo, setScelta, sposta, vaiSe
   return (
     <aside className="sticky self-start" style={{ top: "calc(56px + env(safe-area-inset-top, 0px))", height: "calc(100dvh - 56px - env(safe-area-inset-top, 0px))" }}>
       <motion.div key={richiamo} animate={richiamo ? { boxShadow: ["0 0 0 0 rgb(var(--accento) / 0)", "0 0 0 4px rgb(var(--accento) / .45)", "0 0 0 0 rgb(var(--accento) / 0)"] } : {}}
-        transition={{ duration: 0.9 }} className="flex h-[calc(100%-24px)] flex-col overflow-hidden rounded-bozza border border-filetto/80 bg-fondo-2/80 backdrop-blur-xl mt-3 font-ui">
+        transition={{ duration: 0.9 }} className="flex h-[calc(100%-24px)] flex-col overflow-hidden rounded-scheda border border-filetto/80 bg-fondo-2/80 backdrop-blur-xl mt-3 font-ui">
         <div className="grid gap-3 border-b border-filetto/70 px-4 pb-3 pt-4">
           <AnimatePresence mode="wait" initial={false}>
             <motion.p key={sez?.id ?? "inizio"} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}
@@ -380,7 +377,7 @@ function Lavagna({ sezione }) {
       {formule.map((f, j) => (
         <li key={j}>
           <button type="button" onClick={() => vai(f)}
-            className={`grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-2 rounded-bozza-sm border px-2 py-3 text-left transition-all duration-500
+            className={`grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-2 rounded-piccolo border px-2 py-3 text-left transition-all duration-500
               ${j === corrente ? "border-accento/60 bg-accento/10" : "border-transparent hover:bg-testo/5"}
               ${j > corrente ? "opacity-30" : j < corrente ? "opacity-70" : "opacity-100"}`}>
             <span className="tabulare self-start pt-1 font-testo text-[0.8rem] text-tenue">({j + 1})</span>
@@ -400,7 +397,7 @@ function Sommario({ art, attiva, visti, vai }) {
         return (
           <li key={s.id}>
             <button type="button" onClick={() => vai(s.id)}
-              className={`grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-start gap-2 rounded-bozza-sm px-2 py-2.5 text-left transition-colors ${s.id === attiva ? "bg-accento/10" : "hover:bg-testo/5"}`}>
+              className={`grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-start gap-2 rounded-piccolo px-2 py-2.5 text-left transition-colors ${s.id === attiva ? "bg-accento/10" : "hover:bg-testo/5"}`}>
               <span className={`tabulare pt-px font-testo text-[0.9rem] ${s.id === attiva ? "text-testo" : "text-tenue"}`}>{k + 1}</span>
               <span className={`text-[0.92rem] leading-snug ${s.id === attiva ? "font-semibold text-testo" : "text-testo-2"}`} dangerouslySetInnerHTML={{ __html: s.titolo }} />
               <span className="flex items-center gap-1 pt-0.5 text-tenue">

@@ -1,25 +1,25 @@
 {
  "titolo": "Funzione di Mayer e secondo coefficiente del viriale",
- "durata": 24.8,
+ "durata": 45.717,
  "passi": [
   {
    "t": 0.0,
    "testo": "Il potenziale di Lennard-Jones tra due molecole: repulsione dura a distanze minori di σ, una buca attrattiva di profondità ε poco più in là, e nulla a grande distanza."
   },
   {
-   "t": 4.0,
+   "t": 8.45,
    "testo": "La funzione di Mayer f = e^{−βv} − 1 vale −1 dentro il nocciolo, dove la coppia non può stare, e zero lontano, dove non interagisce. Ad alta temperatura la buca conta poco."
   },
   {
-   "t": 6.6,
+   "t": 17.883,
    "testo": "Abbassando la temperatura la buca pesa sempre di più: f diventa positiva e grande dove v < 0, perché le coppie passano più tempo vicine."
   },
   {
-   "t": 11.4,
+   "t": 25.317,
    "testo": "Il secondo coefficiente del viriale è B₂ = −2π∫r²f dr. A bassa T prevale la buca e B₂ < 0: il gas è più comprimibile di quello ideale. Ad alta T prevale il volume escluso e B₂ > 0."
   },
   {
-   "t": 19.0,
+   "t": 36.267,
    "testo": "B₂ si annulla alla temperatura di Boyle, circa 3.4 ε/k_B per Lennard-Jones: lì attrazione e volume escluso si compensano e, al primo ordine in ρ, il gas reale si comporta come quello ideale."
   }
  ]

@@ -47,7 +47,7 @@ export const useLargo = () => useMedia("(min-width: 1024px)");
 export const useRiduci = () => useMedia("(prefers-reduced-motion: reduce)");
 
 /* ---------------------------------------------------------------- memoria del lettore
-   Solo comodità (bozza scelta, sezioni lette, domande ripassate): la pagina funziona anche se il browser la nega. */
+   Solo comodità (sezioni lette, domande ripassate, punto in cui riprendere): la pagina funziona anche se il browser la nega. */
 export const memoria = {
   leggi(chiave, base) {
     try { const v = localStorage.getItem("ms:" + chiave); return v == null ? base : JSON.parse(v); } catch { return base; }
@@ -58,7 +58,7 @@ export const memoria = {
 };
 
 /* ---------------------------------------------------------------- colori per i canvas
-   I laboratori disegnano con gli stessi token del CSS, letti dal documento a ogni cambio di bozza o di tema. */
+   I laboratori disegnano con gli stessi token del CSS, letti dal documento. */
 const NOMI = ["fondo", "superficie", "schermo", "filetto", "testo", "testo-2", "tenue", "accento",
   "energia", "freddo", "caldo", "termo-medio", "entropia", "probabilita", "particelle", "libera"];
 export function leggiColori() {

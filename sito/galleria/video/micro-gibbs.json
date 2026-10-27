@@ -1,25 +1,25 @@
 {
  "titolo": "Il paradosso di Gibbs",
- "durata": 28.6,
+ "durata": 39.4,
  "passi": [
   {
    "t": 0.0,
    "testo": "Due gas diversi alla stessa temperatura e pressione, separati da un setto: N/2 particelle blu a sinistra, N/2 arancio a destra."
   },
   {
-   "t": 3.5,
+   "t": 6.45,
    "testo": "Togliendo il setto i due gas si mescolano e il processo è irreversibile: l'entropia cresce dell'entropia di mescolamento, N k_B log 2 per due metà uguali."
   },
   {
-   "t": 12.1,
+   "t": 15.05,
    "testo": "Ora lo stesso gas da tutte e due le parti. Togliere il setto non cambia nulla di misurabile: rimettendolo si torna allo stato di partenza."
   },
   {
-   "t": 19.0,
+   "t": 22.5,
    "testo": "Eppure, contando le particelle come distinguibili, la formula dell'entropia dà ancora ΔS > 0: dipende da V e non da V/N, quindi non è estensiva. È il paradosso di Gibbs."
   },
   {
-   "t": 23.3,
+   "t": 31.2,
    "testo": "Gibbs divide il numero di stati per N!, le permutazioni di particelle identiche. V diventa V/N, l'entropia diventa estensiva e il mescolamento dello stesso gas non produce entropia."
   }
  ]

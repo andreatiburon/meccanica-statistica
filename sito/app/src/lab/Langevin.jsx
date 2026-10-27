@@ -112,8 +112,8 @@ export default function Langevin() {
           <Pulsante onClick={() => setA(15)} attivo={a === 15}>Saturazione</Pulsante>
         </div>
       </>}>
-      <canvas ref={frecce} className="aspect-[16/7] w-full rounded-bozza-sm" aria-label="Quaranta dipoli che si orientano nel campo" />
-      <canvas ref={grafici} className="grafici-langevin w-full rounded-bozza-sm" aria-label="Funzione di Langevin e distribuzione di cos θ" />
+      <canvas ref={frecce} className="aspect-[16/7] w-full rounded-piccolo" aria-label="Quaranta dipoli che si orientano nel campo" />
+      <canvas ref={grafici} className="grafici-langevin w-full rounded-piccolo" aria-label="Funzione di Langevin e distribuzione di cos θ" />
     </Cornice>
   );
 }

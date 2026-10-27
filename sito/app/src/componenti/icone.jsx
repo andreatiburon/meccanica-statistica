@@ -18,5 +18,4 @@ export const Lab = p => <Icona {...p}><path d="M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 
 export const Formula = p => <Icona {...p}><path d="M14 4h-2.5a2 2 0 0 0-2 1.8L8 19.2A2 2 0 0 1 6 21H4.5M6 11h7M15 13l5 6M20 13l-5 6" /></Icona>;
 export const Casa = p => <Icona {...p}><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" /></Icona>;
 export const Spunta = p => <Icona {...p}><path d="M5 12.5l4.5 4.5L19 7.5" /></Icona>;
-export const Tavolozza = p => <Icona {...p}><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z" /><circle cx="7.5" cy="11" r="1.2" fill="currentColor" /><circle cx="10.5" cy="7.2" r="1.2" fill="currentColor" /><circle cx="15" cy="7.5" r="1.2" fill="currentColor" /></Icona>;
 export const Ingrandisci = p => <Icona {...p}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icona>;

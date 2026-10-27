@@ -1,21 +1,21 @@
 {
  "titolo": "Fluttuazioni del numero di particelle",
- "durata": 23.8,
+ "durata": 31.767,
  "passi": [
   {
    "t": 0.0,
    "testo": "Un gas ideale in una scatola. Osserviamo solo la regione tratteggiata: scambia particelle ed energia con il resto del gas, che le fa da serbatoio. È un sistema gran canonico."
   },
   {
-   "t": 3.4,
+   "t": 8.7,
    "testo": "Il numero di particelle nella regione, in oro, cambia di continuo e oscilla attorno alla media ⟨N⟩ = 45."
   },
   {
-   "t": 8.9,
+   "t": 14.633,
    "testo": "L'istogramma dei valori di N è una gaussiana con varianza ⟨ΔN²⟩ = ⟨N⟩k_BTρK_T. Per il gas ideale K_T = 1/P e la varianza vale ⟨N⟩; qui un po' meno, ⟨N⟩(1 − 0,09), perché il serbatoio ha solo 500 particelle."
   },
   {
-   "t": 19.2,
+   "t": 25.567,
    "testo": "Le fluttuazioni relative vanno come 1/√⟨N⟩: trascurabili per un sistema macroscopico. Divergono solo dove diverge K_T, cioè al punto critico."
   }
  ]

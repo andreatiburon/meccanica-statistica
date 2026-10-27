@@ -14,7 +14,6 @@ cambia solo la forma, che qui è strutturata in blocchi perché l'app li renda i
 """
 import html
 import json
-import os
 import re
 import shutil
 import subprocess
@@ -27,11 +26,6 @@ from sito import (FILM_SEZIONI, FILM_TESTA, FONTI, KATEX, LABORATORI, LEZIONI, P
                   RADICE, VIDEO, Formule, didascalia, esc, ritocca)
 
 USCITA = RADICE / "sito" / "app" / "public"
-# I film del nuovo sito sono quelli nel tema «lavagna» (sito/galleria/lavagna, resi con TEMA_FILM=lavagna);
-# FILM_DA sceglie un'altra cartella. Se la cartella non c'è si usano quelli del sito attuale.
-_film = Path(os.environ.get("FILM_DA", RADICE / "sito" / "galleria" / "lavagna"))
-if _film.is_dir() and any(_film.glob("*.mp4")):
-    sito.VIDEO = VIDEO = _film
 
 # Laboratori dell'app: nome -> (titolo, sottotitolo). Quelli non ancora portati in React restano segnaposti.
 LAB = {

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Genera tutti i film del sito in 1080p e li copia in sito/galleria/video/.
+"""Genera tutti i film del sito in 1080p a 60 fps e li copia in sito/galleria/video/.
 
 Uso (con il virtualenv di Manim):
   python sito/animazioni/rendi.py            # tutti i film
@@ -9,8 +9,7 @@ Per ogni film: rendering con Manim, ricompressione H.264 con faststart e un foto
 ogni passo (così saltare a un passo è istantaneo), fotogramma di anteprima (.jpg) preso dall'ultimo passo.
 I passi (.json) li scrive la scena stessa.
 
-Variabili d'ambiente: TEMA_FILM (nebbia | lavagna, vedi comune.py), FILM_USCITA (cartella di uscita),
-FILM_FPS (fotogrammi al secondo, 30 di default).
+Variabili d'ambiente: FILM_USCITA (cartella di uscita), FILM_FPS (fotogrammi al secondo, 60 di default).
 """
 import os
 import json
@@ -21,8 +20,8 @@ from pathlib import Path
 
 QUI = Path(__file__).resolve().parent
 VIDEO = Path(os.environ.get("FILM_USCITA", QUI.parent / "galleria" / "video"))
-MEDIA = Path.home() / ".cache" / "manim-media" / os.environ.get("TEMA_FILM", "nebbia")
-FPS = int(os.environ.get("FILM_FPS", "30"))
+MEDIA = Path.home() / ".cache" / "manim-media"
+FPS = int(os.environ.get("FILM_FPS", "60"))
 MANIM = Path(sys.executable).parent / "manim"
 
 FILM = [

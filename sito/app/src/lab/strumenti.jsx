@@ -7,15 +7,15 @@ import { Gioca, Pausa } from "../componenti/icone.jsx";
    Titolo e domanda in alto, scena al centro, poi comandi e letture dal vivo (la «telemetria»). */
 export function Cornice({ titolo, sotto, children, comandi, letture, legenda }) {
   return (
-    <figure className="lab m-0 grid gap-4 rounded-bozza border border-filetto/80 bg-superficie p-4 font-ui shadow-lg shadow-black/10">
+    <figure className="lab m-0 grid gap-4 rounded-scheda border border-filetto/80 bg-superficie p-4 font-ui shadow-lg shadow-black/10">
       <figcaption className="grid gap-0.5 px-1">
-        <span className="etichetta-mano text-[0.84rem] font-semibold text-accento">Laboratorio</span>
+        <span className="text-[0.84rem] font-semibold text-accento">Laboratorio</span>
         <span className="font-display text-[1.15rem] leading-snug text-testo">{titolo}</span>
         {sotto && <span className="text-[0.84rem] leading-snug text-testo-2">{sotto}</span>}
       </figcaption>
       {children}
       {legenda && <div className="flex flex-wrap gap-x-4 gap-y-1 px-1 text-[0.78rem] text-testo-2">{legenda}</div>}
-      {letture && <dl className="m-0 grid grid-cols-2 gap-px overflow-hidden rounded-bozza-sm border border-filetto/70 bg-filetto/70">{letture}</dl>}
+      {letture && <dl className="m-0 grid grid-cols-2 gap-px overflow-hidden rounded-piccolo border border-filetto/70 bg-filetto/70">{letture}</dl>}
       {comandi && <div className="grid gap-3">{comandi}</div>}
     </figure>
   );
@@ -67,7 +67,7 @@ export function GiocaPausa({ inPausa, onClick }) {
 }
 
 /* ---------------------------------------------------------------- canvas
-   useTela: canvas nitido alla densità dello schermo, ridisegnato quando cambia misura o bozza.
+   useTela: canvas nitido alla densità dello schermo, ridisegnato quando cambia misura.
    disegna(ctx, w, h, colori) è chiamata a ogni cambio; con anima=true gira a ogni fotogramma
    (solo mentre il canvas è visibile). */
 export function useTela(disegna, deps = [], { anima = false } = {}) {

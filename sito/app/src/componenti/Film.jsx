@@ -80,7 +80,7 @@ export default function Film({ nome, grande = false }) {
 
   if (!info) return null;
   return (
-    <figure className="m-0 overflow-hidden rounded-bozza border border-filetto/70 bg-superficie font-ui">
+    <figure className="m-0 overflow-hidden rounded-scheda border border-filetto/70 bg-superficie font-ui">
       <div className="relative aspect-video bg-schermo">
         <video ref={v} className="absolute inset-0 h-full w-full" poster={`video/${nome}.jpg`} preload="metadata" playsInline muted
           onClick={premi} onEnded={() => setStato("finito")}>
