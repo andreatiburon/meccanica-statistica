@@ -6,23 +6,28 @@ vengono scritti in `sito/galleria/video/<USCITA>.json`, e il lettore del sito
 ferma il video alla fine di ogni passo.
 """
 import json
+import os
 from pathlib import Path
 
 import numpy as np
 from manim import *
 
-VIDEO = Path(__file__).resolve().parent.parent / "galleria" / "video"
+# FILM_USCITA sceglie un'altra cartella di uscita, per esempio per rendere i film in un altro tema senza toccare questi.
+VIDEO = Path(os.environ.get("FILM_USCITA", Path(__file__).resolve().parent.parent / "galleria" / "video"))
 
 # Palette: inchiostro blu notte, freddo -> caldo come una scala di temperatura.
-FONDO = "#0B1020"
-INCHIOSTRO = "#E6E2D6"
-TENUE = "#7D8597"
-FREDDO = "#4C7BD9"
-CALDO = "#E8834A"
-ORO = "#F2C14E"
-VERDE = "#5FBF8F"
-SERIF = "Spectral"
-MONO = "JetBrains Mono"
+# TEMA_FILM=lavagna rende i film con la palette della bozza «Lavagna» del nuovo sito: fondo d'ardesia identico
+# a quello della pagina e gessetti con la stessa luminosità, così il film si fonde con il testo intorno.
+TAVOLOZZE = {
+    "nebbia": dict(FONDO="#0B1020", INCHIOSTRO="#E6E2D6", TENUE="#7D8597", FREDDO="#4C7BD9", CALDO="#E8834A",
+                   ORO="#F2C14E", VERDE="#5FBF8F", SPENTO="#1D2747", SERIF="Spectral", MONO="JetBrains Mono"),
+    "lavagna": dict(FONDO="#0D1210", INCHIOSTRO="#F2F0EA", TENUE="#8C9590", FREDDO="#83BEF0", CALDO="#ED8F6A",
+                    ORO="#F0CD74", VERDE="#8CD59F", SPENTO="#232B28", SERIF="STIX Two Text", MONO="STIX Two Text"),
+}
+TEMA = os.environ.get("TEMA_FILM", "nebbia")
+_t = TAVOLOZZE[TEMA]
+FONDO, INCHIOSTRO, TENUE, FREDDO, CALDO = _t["FONDO"], _t["INCHIOSTRO"], _t["TENUE"], _t["FREDDO"], _t["CALDO"]
+ORO, VERDE, SPENTO, SERIF, MONO = _t["ORO"], _t["VERDE"], _t["SPENTO"], _t["SERIF"], _t["MONO"]
 
 config.background_color = FONDO
 modello = TexTemplate()

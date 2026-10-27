@@ -14,6 +14,7 @@ cambia solo la forma, che qui è strutturata in blocchi perché l'app li renda i
 """
 import html
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -26,6 +27,11 @@ from sito import (FILM_SEZIONI, FILM_TESTA, FONTI, KATEX, LABORATORI, LEZIONI, P
                   RADICE, VIDEO, Formule, didascalia, esc, ritocca)
 
 USCITA = RADICE / "sito" / "app" / "public"
+# I film del nuovo sito sono quelli nel tema «lavagna» (sito/galleria/lavagna, resi con TEMA_FILM=lavagna);
+# FILM_DA sceglie un'altra cartella. Se la cartella non c'è si usano quelli del sito attuale.
+_film = Path(os.environ.get("FILM_DA", RADICE / "sito" / "galleria" / "lavagna"))
+if _film.is_dir() and any(_film.glob("*.mp4")):
+    sito.VIDEO = VIDEO = _film
 
 # Laboratori dell'app: nome -> (titolo, sottotitolo). Quelli non ancora portati in React restano segnaposti.
 LAB = {
@@ -207,8 +213,9 @@ class Contenuti:
         video = USCITA / "video"
         video.mkdir(exist_ok=True)
         for f in VIDEO.glob("*"):
-            if f.suffix in (".mp4", ".jpg") and (not (video / f.name).exists() or (video / f.name).stat().st_mtime < f.stat().st_mtime):
-                shutil.copy2(f, video / f.name)
+            dest = video / f.name
+            if f.suffix in (".mp4", ".jpg") and (not dest.exists() or dest.stat().st_size != f.stat().st_size or dest.stat().st_mtime < f.stat().st_mtime):
+                shutil.copy2(f, dest)
         katex = USCITA / "katex"
         (katex / "fonts").mkdir(parents=True, exist_ok=True)
         shutil.copy2(KATEX / "katex.min.css", katex / "katex.min.css")

@@ -45,7 +45,7 @@ export const Prosa = memo(function Prosa({ html, className = "" }) {
 });
 
 function Etichetta({ children, className = "" }) {
-  return <p className={`etichetta-mano m-0 font-ui text-[0.7rem] font-semibold uppercase tracking-[0.16em] ${className}`}>{children}</p>;
+  return <p className={`etichetta-mano m-0 font-ui text-[0.84rem] font-semibold ${className}`}>{children}</p>;
 }
 
 /* L'intuizione e le trappole: due riquadri con un ruolo fisso, riconoscibili a colpo d'occhio. */
@@ -67,7 +67,7 @@ function Passaggi({ titolo, blocchi }) {
     <section data-lavagna-no className={`rounded-bozza border transition-colors ${aperto ? "border-accento/40 bg-superficie/70" : "border-filetto bg-superficie/40"}`}>
       <button type="button" onClick={() => setAperto(a => !a)} aria-expanded={aperto}
         className="flex min-h-[56px] w-full items-center gap-3 px-5 py-3 text-left font-ui">
-        <span className="etichetta-mano text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-accento">Passaggi</span>
+        <span className="etichetta-mano text-[0.84rem] font-semibold text-accento">Passaggi</span>
         <span className="min-w-0 flex-1 text-[0.95rem] font-medium leading-snug text-testo">{titolo}</span>
         <motion.span animate={{ rotate: aperto ? 180 : 0 }} className="text-tenue"><Giu size={18} /></motion.span>
       </button>
@@ -210,11 +210,11 @@ function Segnaposto({ icona, etichetta, titolo, sotto, azione, onClick }) {
       className="group flex w-full items-center gap-4 rounded-bozza border border-dashed border-accento/45 bg-accento/[0.06] px-5 py-4 text-left font-ui transition-colors enabled:hover:bg-accento/10">
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-accento/15 text-accento">{icona}</span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-accento">{etichetta}</span>
+        <span className="block text-[0.84rem] font-semibold text-accento">{etichetta}</span>
         <span className="block font-display text-[1.05rem] leading-snug text-testo">{titolo}</span>
         {sotto && <span className="block text-[0.82rem] text-testo-2">{sotto}</span>}
       </span>
-      {azione && <span className="hidden shrink-0 text-[0.82rem] font-medium text-accento sm:block">{azione} →</span>}
+      {azione && <span className="hidden shrink-0 text-[0.84rem] font-medium text-testo-2 sm:block">{azione}</span>}
     </button>
   );
 }
@@ -224,7 +224,7 @@ function PostoFilm({ nome }) {
   const { largo, mostra } = useLezione();
   const info = indice.film[nome];
   if (!info) return null;
-  if (largo) return <Segnaposto icona={<IconaFilm />} etichetta="Film" titolo={info.titolo} sotto={`${info.passi.length} passi · ${Math.round(info.durata)} s`} azione="nel banco" onClick={() => mostra(`film:${nome}`)} />;
+  if (largo) return <Segnaposto icona={<IconaFilm />} etichetta="Film" titolo={info.titolo} sotto={`${info.passi.length} passi, ${Math.round(info.durata)} secondi`} azione="Apri nel banco" onClick={() => mostra(`film:${nome}`)} />;
   return <Film nome={nome} />;
 }
 
@@ -233,7 +233,7 @@ function PostoLab({ nome }) {
   const { largo, mostra } = useLezione();
   const info = indice.lab[nome] ?? { titolo: nome };
   const Vivo = LABORATORI[nome];
-  if (!Vivo) return <Segnaposto icona={<IconaLab />} etichetta="Laboratorio · da portare nel nuovo sito" titolo={info.titolo} sotto={info.sottotitolo} />;
-  if (largo) return <Segnaposto icona={<IconaLab />} etichetta="Laboratorio" titolo={info.titolo} sotto={info.sottotitolo} azione="nel banco" onClick={() => mostra(`lab:${nome}`)} />;
+  if (!Vivo) return <Segnaposto icona={<IconaLab />} etichetta="Laboratorio ancora da rifare" titolo={info.titolo} sotto={info.sottotitolo} />;
+  if (largo) return <Segnaposto icona={<IconaLab />} etichetta="Laboratorio" titolo={info.titolo} sotto={info.sottotitolo} azione="Apri nel banco" onClick={() => mostra(`lab:${nome}`)} />;
   return <Vivo />;
 }

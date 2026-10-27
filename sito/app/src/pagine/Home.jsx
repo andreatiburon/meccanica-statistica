@@ -26,9 +26,6 @@ export default function Home() {
       <div className="mx-auto max-w-[1240px] pb-24" style={gutter}>
         {/* copertina: il titolo è un gas, la temperatura la decide chi legge */}
         <section className="grid gap-6 pb-14 pt-10 largo:pt-14">
-          <p className="m-0 font-ui text-[0.74rem] font-semibold uppercase tracking-[0.16em] text-tenue">
-            Wiki di studio · {indice.percorso.length} lezioni · {Object.keys(indice.film).length} film · {Object.keys(indice.lab).length} laboratori
-          </p>
           <h1 className="sr-only">Meccanica Statistica</h1>
           <Titolo T={T} className="h-[clamp(190px,34vw,380px)]" />
           <div className="grid items-end gap-6 largo:grid-cols-[minmax(0,1fr)_420px]">
@@ -40,10 +37,10 @@ export default function Home() {
             <div className="grid gap-1 rounded-bozza border border-filetto/80 bg-superficie/70 p-4 font-ui backdrop-blur">
               <label htmlFor="home-T" className="flex items-baseline justify-between text-[0.84rem] text-testo-2">
                 <span>Temperatura del titolo</span>
-                <output htmlFor="home-T" className="tabulare font-mono text-[0.95rem] text-caldo">{fmt(T, 2)}</output>
+                <output htmlFor="home-T" className="tabulare text-[1rem] text-caldo">{fmt(T, 2)}</output>
               </label>
               <input id="home-T" className="cursore" type="range" min="0" max="1.4" step="0.01" value={T} onChange={e => setT(+e.target.value)} />
-              <p className="m-0 text-[0.82rem] text-tenue">{fase} · tocca il titolo per scaldarlo in un punto</p>
+              <p className="m-0 text-[0.82rem] text-tenue">{fase}. Tocca il titolo per scaldarlo in un punto.</p>
             </div>
           </div>
         </section>
@@ -54,7 +51,7 @@ export default function Home() {
             className="mb-14 flex w-full items-center gap-4 rounded-bozza border border-accento/40 bg-accento/[0.07] p-5 text-left font-ui transition-colors hover:bg-accento/10">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-accento text-fondo"><Gioca size={18} /></span>
             <span className="min-w-0 flex-1">
-              <span className="block text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-accento">Riprendi da dove eri</span>
+              <span className="block text-[0.84rem] font-semibold text-accento">Riprendi da dove eri</span>
               <span className="block truncate font-display text-[1.25rem] text-testo">{lezUltima.numero}. {lezUltima.breve}</span>
               <span className="block truncate text-[0.86rem] text-testo-2" dangerouslySetInnerHTML={{ __html: lezUltima.sezioni.find(s => s.id === ultimo.sezione)?.titolo ?? "" }} />
             </span>
@@ -64,10 +61,10 @@ export default function Home() {
 
         <Titoletto titolo="Percorso" sotto="Dieci lezioni nell'ordine del corso. Ognuna si studia da sola: idea in breve, conti completi, film, laboratori e domande per ripassare." />
         <ol className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2">
-          {indice.percorso.map((l, k) => (
-            <motion.li key={l.slug} initial={{ opacity: 0.001, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 * k, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+          {indice.percorso.map(l => (
+            <li key={l.slug}>
               <Scheda l={l} apri={apri} />
-            </motion.li>
+            </li>
           ))}
         </ol>
 
@@ -81,7 +78,7 @@ export default function Home() {
                 <span className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-[0.72rem] tabulare text-white">{durata(f.durata)}</span>
               </span>
               <span className="text-[0.92rem] font-medium leading-snug text-testo">{f.titolo}</span>
-              <span className="text-[0.78rem] text-tenue">{indice.percorso.find(l => l.slug === f.slug)?.breve} · {f.passi.length} passi</span>
+              <span className="text-[0.78rem] text-tenue">{indice.percorso.find(l => l.slug === f.slug)?.breve}, {f.passi.length} passi</span>
             </motion.button>
           ))}
         </div>
@@ -99,7 +96,7 @@ export default function Home() {
                   <span className="min-w-0">
                     <span className="block text-[0.95rem] font-medium leading-snug text-testo">{x.titolo}</span>
                     <span className="block text-[0.8rem] text-testo-2">{x.sottotitolo}</span>
-                    <span className="mt-1 block text-[0.74rem] text-tenue">{indice.percorso.find(l => l.slug === x.slug)?.breve}{pronto ? "" : " · da rifare nel nuovo sito"}</span>
+                    <span className="mt-1 block text-[0.74rem] text-tenue">{indice.percorso.find(l => l.slug === x.slug)?.breve}{pronto ? "" : ", ancora da rifare"}</span>
                   </span>
                 </button>
               </li>
@@ -141,7 +138,7 @@ const Scheda = memo(function Scheda({ l, apri }) {
   const totale = l.sezioni.length;
   return (
     <motion.button type="button" onClick={() => apri(l.slug)} onPointerDown={() => carica(l.slug).catch(() => {})}
-      whileHover={{ y: -3 }} whileTap={{ scale: 0.985 }} transition={{ type: "spring", stiffness: 400, damping: 30 }}
+      whileTap={{ scale: 0.985 }} transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className="group grid h-full w-full grid-rows-[auto_1fr] overflow-hidden rounded-bozza border border-filetto/80 bg-superficie/60 text-left font-ui transition-colors hover:border-accento/50">
       <span className="relative block aspect-[16/6] overflow-hidden bg-schermo">
         {l.film[0] ? <img src={`video/${l.film[0]}.jpg`} alt="" loading="lazy" className="h-full w-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-[1.04]" />

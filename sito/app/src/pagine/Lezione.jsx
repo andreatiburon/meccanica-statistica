@@ -145,7 +145,7 @@ export default function Lezione({ slug }) {
             {sez && (
               <motion.p key={sez.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}
                 className="m-0 hidden truncate text-[0.86rem] text-testo-2 md:block">
-                <span className="text-tenue">{voce?.numero ? `${voce.numero} · ` : ""}{voce?.breve}</span>
+                <span className="text-tenue">{voce?.breve}</span>
                 <span className="mx-2 text-filetto">/</span>
                 <span className="tabulare text-tenue">{indiceSez + 1}.</span> <span dangerouslySetInnerHTML={{ __html: sez.titolo }} />
               </motion.p>
@@ -195,8 +195,8 @@ function Testata({ voce, art, conteggi }) {
   const [ripasso, setRipasso] = useState(false);
   return (
     <header className="grid gap-5 pb-8 pt-10 largo:pt-14">
-      <p className="m-0 font-ui text-[0.74rem] font-semibold uppercase tracking-[0.16em] text-tenue">
-        {voce?.numero ? `Lezione ${voce.numero} di 10` : "Fonte"}{voce?.pagine ? ` · Dispense ${voce.pagine}` : ""}
+      <p className="m-0 font-ui text-[0.84rem] font-semibold text-tenue">
+        {voce?.numero ? `Lezione ${voce.numero} di 10` : "Fonte del corso"}{voce?.pagine ? `, dispense alle ${voce.pagine}` : ""}
       </p>
       <h1 className="m-0 font-display text-[clamp(2.4rem,5.4vw,3.6rem)] font-medium leading-[1.04] tracking-[-0.01em] text-testo">{voce?.titolo}</h1>
       <Filetto seme={voce?.slug ?? "x"} n={140} />
@@ -211,18 +211,18 @@ function Testata({ voce, art, conteggi }) {
         </ul>
       )}
       {art?.punti && (
-        <div className="rounded-bozza border border-energia/35 bg-energia/[0.06]">
+        <div className="rounded-bozza border border-filetto bg-superficie/50">
           <button type="button" onClick={() => setRipasso(r => !r)} aria-expanded={ripasso}
             className="flex min-h-[56px] w-full items-center gap-3 px-5 text-left font-ui">
-            <span className="text-[0.95rem] font-semibold text-energia">Ripasso in un minuto</span>
+            <span className="text-[0.95rem] font-semibold text-testo">Ripasso in un minuto</span>
             <span className="text-[0.86rem] text-testo-2">i punti chiave della lezione</span>
-            <motion.span animate={{ rotate: ripasso ? 180 : 0 }} className="ml-auto text-energia"><Giu size={18} /></motion.span>
+            <motion.span animate={{ rotate: ripasso ? 180 : 0 }} className="ml-auto text-tenue"><Giu size={18} /></motion.span>
           </button>
           <AnimatePresence initial={false}>
             {ripasso && (
               <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                 transition={{ height: { type: "spring", stiffness: 260, damping: 32 } }} className="overflow-hidden">
-                <Prosa html={art.punti} className="border-t border-energia/25 px-5 pb-5 pt-3 text-[0.96em]" />
+                <Prosa html={art.punti} className="border-t border-filetto px-5 pb-5 pt-3 text-[0.96em]" />
               </motion.div>
             )}
           </AnimatePresence>
@@ -239,7 +239,7 @@ const Sezione = memo(function Sezione({ s, k, slug }) {
     <section id={"sez-" + s.id} className="grid gap-5 pt-12" style={{ scrollMarginTop: "72px" }}>
       <div className="grid gap-2">
         <h2 className="m-0 flex items-baseline gap-3 font-display text-[clamp(1.6rem,3vw,2.05rem)] font-medium leading-tight text-testo">
-          <span className="tabulare font-mono text-[0.5em] font-normal text-accento">{String(k + 1).padStart(2, "0")}</span>
+          <span className="tabulare text-[0.62em] font-normal text-tenue">{k + 1}</span>
           <span dangerouslySetInnerHTML={{ __html: s.titolo }} />
         </h2>
         <Filetto seme={slug + s.id} n={60} />
@@ -254,7 +254,7 @@ function Coda({ art, prec, succ, apri }) {
     <footer className="mt-16 grid gap-8 border-t border-filetto pt-10">
       {art.correlati && (
         <div className="grid gap-2">
-          <p className="m-0 font-ui text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-tenue">Articoli correlati</p>
+          <p className="m-0 font-ui text-[0.84rem] font-semibold text-tenue">Articoli correlati</p>
           <Prosa html={art.correlati} className="text-[0.92em]" />
         </div>
       )}
@@ -262,7 +262,7 @@ function Coda({ art, prec, succ, apri }) {
         {[[prec, "Lezione precedente", Indietro], [succ, "Lezione successiva", Avanti]].map(([l, nome, Icona]) => l ? (
           <motion.button key={nome} type="button" onClick={() => apri(l.slug)} whileTap={{ scale: 0.98 }}
             className="grid content-start gap-1 rounded-bozza border border-filetto bg-superficie/60 p-5 text-left font-ui transition-colors hover:border-accento/50">
-            <span className="flex items-center gap-1 text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-tenue"><Icona size={14} />{nome}</span>
+            <span className="flex items-center gap-1 text-[0.84rem] font-semibold text-tenue"><Icona size={14} />{nome}</span>
             <span className="font-display text-[1.25rem] leading-snug text-testo"><span className="tabulare text-accento">{l.numero}</span> {l.breve}</span>
           </motion.button>
         ) : <span key={nome} />)}
@@ -291,7 +291,7 @@ function Banco({ art, sez, indiceSez, scelta, richiamo, setScelta, sposta, vaiSe
           <AnimatePresence mode="wait" initial={false}>
             <motion.p key={sez?.id ?? "inizio"} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.18 }}
               className="m-0 flex items-baseline gap-2 text-[0.95rem] font-medium leading-snug text-testo">
-              {sez ? <><span className="tabulare font-mono text-[0.8rem] text-accento">{String(indiceSez + 1).padStart(2, "0")}</span><span dangerouslySetInnerHTML={{ __html: sez.titolo }} /></> : "In questa lezione"}
+              {sez ? <><span className="tabulare text-tenue">{indiceSez + 1}</span><span dangerouslySetInnerHTML={{ __html: sez.titolo }} /></> : "In questa lezione"}
             </motion.p>
           </AnimatePresence>
           {schede.length > 1 && (
@@ -383,7 +383,7 @@ function Lavagna({ sezione }) {
             className={`grid w-full grid-cols-[2rem_minmax(0,1fr)] items-center gap-2 rounded-bozza-sm border px-2 py-3 text-left transition-all duration-500
               ${j === corrente ? "border-accento/60 bg-accento/10" : "border-transparent hover:bg-testo/5"}
               ${j > corrente ? "opacity-30" : j < corrente ? "opacity-70" : "opacity-100"}`}>
-            <span className="tabulare self-start pt-1 font-mono text-[0.72rem] text-tenue">({j + 1})</span>
+            <span className="tabulare self-start pt-1 font-testo text-[0.8rem] text-tenue">({j + 1})</span>
             <span className="katex-display min-w-0 font-testo text-[0.92rem] text-testo" dangerouslySetInnerHTML={{ __html: f.html }} />
           </button>
         </li>
@@ -401,7 +401,7 @@ function Sommario({ art, attiva, visti, vai }) {
           <li key={s.id}>
             <button type="button" onClick={() => vai(s.id)}
               className={`grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-start gap-2 rounded-bozza-sm px-2 py-2.5 text-left transition-colors ${s.id === attiva ? "bg-accento/10" : "hover:bg-testo/5"}`}>
-              <span className={`tabulare pt-0.5 font-mono text-[0.75rem] ${s.id === attiva ? "text-accento" : "text-tenue"}`}>{String(k + 1).padStart(2, "0")}</span>
+              <span className={`tabulare pt-px font-testo text-[0.9rem] ${s.id === attiva ? "text-testo" : "text-tenue"}`}>{k + 1}</span>
               <span className={`text-[0.92rem] leading-snug ${s.id === attiva ? "font-semibold text-testo" : "text-testo-2"}`} dangerouslySetInnerHTML={{ __html: s.titolo }} />
               <span className="flex items-center gap-1 pt-0.5 text-tenue">
                 {m.some(c => c.startsWith("film:")) && <IconaFilm size={15} />}

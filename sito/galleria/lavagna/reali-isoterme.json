@@ -1,0 +1,22 @@
+{
+ "titolo": "Isoterme di Van der Waals",
+ "durata": 20.6,
+ "passi": [
+  {
+   "t": 0.0,
+   "testo": "L'equazione di Van der Waals in variabili ridotte, divise per i valori critici: un'isoterma per ogni temperatura. Ad alta T somiglia all'iperbole del gas perfetto."
+  },
+  {
+   "t": 4.0,
+   "testo": "Scendendo verso T̃ = 1 l'isoterma si appiattisce. Al punto critico (ṽ, P̃) = (1, 1) si annullano insieme la derivata prima e la derivata seconda: un flesso a tangente orizzontale."
+  },
+  {
+   "t": 10.2,
+   "testo": "Sotto T_c l'isoterma ha un tratto, in arancio, in cui la pressione cresce col volume: compressibilità negativa, fisicamente impossibile. Lì il fluido si separa in liquido e gas."
+  },
+  {
+   "t": 16.1,
+   "testo": "Vicino al punto critico ∂P̃/∂ṽ = −6(1 − T̃): la compressibilità isoterma diverge come (T − T_c)^{−1}, e con lei le fluttuazioni di densità."
+  }
+ ]
+}

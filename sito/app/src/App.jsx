@@ -7,7 +7,7 @@ import FilmGrande from "./componenti/FilmGrande.jsx";
 
 export const BOZZE = [
   { id: "a", nome: "Nebbia", descrizione: "La camera a nebbia del sito attuale, resa fluida: blu notte, vetro, Spectral." },
-  { id: "b", nome: "Lavagna", descrizione: "Il nero dei film alla 3Blue1Brown, carattere da LaTeX, colori pieni per ogni grandezza." },
+  { id: "b", nome: "Lavagna", descrizione: "Ardesia quasi nera, gesso bianco per l'interfaccia, gessetti dello stesso tono per le grandezze fisiche." },
   { id: "c", nome: "Quaderno", descrizione: "Quadretti con il margine, inchiostro blu, evidenziatore e penna rossa. Segue il tema chiaro o scuro." },
 ];
 
@@ -25,7 +25,7 @@ const PAGINA = {
 export default function App() {
   const rotta = useRotta();
   const { dati: indice, errore } = useDati("indice");
-  const [bozza, setBozza] = useState(() => memoria.leggi("bozza", "a"));
+  const [bozza, setBozza] = useState(() => memoria.leggi("bozza", "b"));
   const [colori, setColori] = useState(null);
   const [film, setFilm] = useState(null);
   const destinazione = useRef(null);

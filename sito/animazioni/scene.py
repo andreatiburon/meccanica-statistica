@@ -12,18 +12,10 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from comune import Lezione  # noqa: E402
+from comune import CALDO, FONDO, FREDDO, INCHIOSTRO, MONO, ORO, SERIF, SPENTO, TENUE, Lezione  # noqa: E402
 from manim import *  # noqa: E402
 
-# Palette comune: inchiostro blu notte, freddo -> caldo come una scala di temperatura.
-FONDO = "#0B1020"
-INCHIOSTRO = "#E6E2D6"
-TENUE = "#7D8597"
-FREDDO = "#4C7BD9"
-CALDO = "#E8834A"
-ORO = "#F2C14E"
-SERIF = "Spectral"
-MONO = "JetBrains Mono"
+# Palette e caratteri vengono da comune.py (tema scelto con TEMA_FILM).
 
 config.background_color = FONDO
 
@@ -207,7 +199,7 @@ class IsingRaffreddamento(Lezione):
         self.add(titolo("Modello di Ising 2D", "Metropolis su 96 × 96 spin, raffreddato attraverso Tc"))
 
         su = np.array(ManimColor(CALDO).to_rgb()) * 255
-        giu = np.array(ManimColor("#1C2A4A").to_rgb()) * 255
+        giu = np.array(ManimColor(SPENTO).to_rgb()) * 255
 
         def rgba(s):
             img = np.where(s[..., None] > 0, su, giu).astype(np.uint8)

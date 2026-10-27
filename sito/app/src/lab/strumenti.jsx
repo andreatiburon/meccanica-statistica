@@ -9,7 +9,7 @@ export function Cornice({ titolo, sotto, children, comandi, letture, legenda }) 
   return (
     <figure className="lab m-0 grid gap-4 rounded-bozza border border-filetto/80 bg-superficie p-4 font-ui shadow-lg shadow-black/10">
       <figcaption className="grid gap-0.5 px-1">
-        <span className="etichetta-mano text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-accento">Laboratorio</span>
+        <span className="etichetta-mano text-[0.84rem] font-semibold text-accento">Laboratorio</span>
         <span className="font-display text-[1.15rem] leading-snug text-testo">{titolo}</span>
         {sotto && <span className="text-[0.84rem] leading-snug text-testo-2">{sotto}</span>}
       </figcaption>
@@ -25,7 +25,7 @@ export function Lettura({ nome, valore, colore = "text-testo" }) {
   return (
     <div className="bg-superficie px-3 py-2.5">
       <dt className="text-[0.72rem] leading-tight text-tenue">{nome}</dt>
-      <dd className={`tabulare m-0 mt-0.5 font-mono text-[1rem] ${colore}`}>{valore}</dd>
+      <dd className={`tabulare m-0 mt-0.5 font-testo text-[1.08rem] ${colore}`}>{valore}</dd>
     </div>
   );
 }
@@ -44,7 +44,7 @@ export function Cursore({ id, etichetta, valore, testo, min, max, step, onChange
     <div className="grid gap-0.5 px-1">
       <label htmlFor={id} className="flex items-baseline justify-between gap-3 text-[0.84rem] text-testo-2">
         <span>{etichetta}</span>
-        <output htmlFor={id} className="tabulare font-mono text-[0.95rem] text-accento">{testo ?? valore}</output>
+        <output htmlFor={id} className="tabulare font-testo text-[1.02rem] text-testo">{testo ?? valore}</output>
       </label>
       <input id={id} className="cursore" type="range" min={min} max={max} step={step} value={valore}
         onChange={e => onChange(+e.target.value)} />

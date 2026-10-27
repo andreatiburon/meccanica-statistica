@@ -9,7 +9,7 @@
    ·  particelle (N, μ)  ·  energia libera e funzione di partizione (A, Q, Z).
 
    A · Nebbia     la camera a nebbia del sito attuale, resa fluida: blu notte, vetro, Spectral.
-   B · Lavagna    il fondo nero dei film alla 3Blue1Brown, tutto in carattere da LaTeX, colori saturi.
+   B · Lavagna    ardesia quasi nera e gessetti dello stesso tono, tutto in carattere da LaTeX.
    C · Quaderno   il quaderno a quadretti con il margine: inchiostro blu, penna rossa, evidenziatore. */
 
 :root {
@@ -46,30 +46,33 @@
 }
 
 :root[data-bozza="b"] {
-  --fondo: 12 13 16;
-  --fondo-2: 18 19 24;
-  --superficie: 24 26 32;
-  --schermo: 0 0 0;
-  --filetto: 52 55 66;
-  --testo: 238 238 234;
-  --testo-2: 190 192 198;
-  --tenue: 128 132 144;
-  --accento: 88 196 221;
-  --link: 88 196 221;
-  --energia: 255 217 90;
-  --freddo: 88 196 221;
-  --caldo: 252 98 85;
-  --termo-medio: 236 236 230;
-  --entropia: 169 139 224;
-  --probabilita: 131 193 103;
-  --particelle: 92 208 179;
-  --libera: 255 138 192;
-  --idea: 131 193 103;
-  --attenzione: 252 98 85;
+  /* lavagna d'ardesia e gessetti: i colori delle grandezze hanno tutti la stessa luminosità e la stessa
+     saturazione (OKLCH L ≈ 0,8, C ≈ 0,1) e cambiano solo di tinta, così stanno insieme senza fare a pugni.
+     L'interfaccia è gesso bianco: il colore compare solo dove porta un significato fisico. */
+  --fondo: 13 18 16;
+  --fondo-2: 19 25 22;
+  --superficie: 26 32 29;
+  --schermo: 13 18 16;
+  --filetto: 50 58 55;
+  --testo: 242 240 234;
+  --testo-2: 198 200 193;
+  --tenue: 140 149 144;
+  --accento: 242 240 234;
+  --link: 131 190 240;
+  --energia: 240 205 116;
+  --freddo: 131 190 240;
+  --caldo: 237 143 106;
+  --termo-medio: 234 232 223;
+  --entropia: 186 164 229;
+  --probabilita: 140 213 159;
+  --particelle: 129 205 209;
+  --libera: 231 153 183;
+  --idea: 198 200 193;
+  --attenzione: 237 143 106;
   --f-display: "STIX Two Text", "Times New Roman", serif;
   --f-testo: "STIX Two Text", "Times New Roman", serif;
-  --f-ui: "Atkinson Hyperlegible", "Helvetica Neue", Arial, sans-serif;
-  --f-mono: "JetBrains Mono", "DejaVu Sans Mono", Menlo, monospace;
+  --f-ui: "Fira Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "STIX Two Text", "Times New Roman", serif;
   --f-mano: "STIX Two Text", "Times New Roman", serif;
   --raggio: 6px;
   --raggio-sm: 4px;
@@ -153,7 +156,7 @@ body::before {
     radial-gradient(rgb(236 232 222 / .055) 1px, transparent 1.5px) 0 0 / 22px 22px;
 }
 :root[data-bozza="b"] .atmosfera {
-  background: radial-gradient(1200px 800px at 50% -20%, rgb(255 255 255 / .04), transparent 70%);
+  background: radial-gradient(1400px 700px at 30% -25%, rgb(242 240 234 / .045), transparent 70%);
 }
 :root[data-bozza="c"] .atmosfera {
   background:
@@ -184,15 +187,15 @@ h1, h2, h3 { text-wrap: balance; }
 .prosa .katex-display > .katex { font-size: 1.1em; }
 .prosa .katex-display.lampeggia { background: rgb(var(--accento) / .14); }
 .prosa .cit {
-  display: inline-block; font: 500 .62em/1.5 var(--f-mono); letter-spacing: .02em;
-  padding: .12em .5em; margin: 0 .1em; border-radius: 999px; vertical-align: .18em; white-space: nowrap;
-  color: rgb(var(--tenue)); background: rgb(var(--testo) / .06); border: 1px solid rgb(var(--filetto) / .8);
+  font: italic .8em/1 var(--f-testo); color: rgb(var(--tenue)); white-space: nowrap;
 }
+.prosa .cit::before { content: "("; }
+.prosa .cit::after { content: ")"; }
 .prosa .divergenza { padding-left: .9em; border-left: 2px dashed rgb(var(--attenzione) / .6); }
 .prosa .tabella { overflow-x: auto; margin: 1.2em 0; }
 .prosa table { border-collapse: collapse; font-size: .86em; min-width: 100%; }
 .prosa th, .prosa td { padding: .45em .7em; border-bottom: 1px solid rgb(var(--filetto)); text-align: left; vertical-align: top; }
-.prosa th { font: 600 .78em/1.4 var(--f-ui); letter-spacing: .04em; text-transform: uppercase; color: rgb(var(--tenue)); }
+.prosa th { font: 600 .84em/1.4 var(--f-ui); color: rgb(var(--testo-2)); }
 .prosa code { font: .85em var(--f-mono); }
 .prosa hr { border: 0; border-top: 1px solid rgb(var(--filetto)); margin: 2em 0; }
 .prosa sup, .prosa sub { line-height: 0; }

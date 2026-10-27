@@ -5,8 +5,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from comune import *
 
-SU = "#E8834A"
-GIU = "#1C2A4A"
+SU = CALDO
+GIU = SPENTO
 
 
 class Ising1D(Lezione):

@@ -14,7 +14,7 @@ export default function Barra({ centro, destra, avanzamento }) {
         <div className="mx-auto flex h-14 max-w-[1240px] items-center gap-3">
           <button type="button" onClick={() => vai("home")}
             className="shrink-0 rounded-lg px-1 py-2 font-display text-[1.15rem] leading-none text-testo">
-            Meccanica <i className="text-caldo">Statistica</i>
+            Meccanica Statistica
           </button>
           <div className="min-w-0 flex-1">{centro}</div>
           <div className="flex shrink-0 items-center gap-1.5">
@@ -55,7 +55,7 @@ function SceltaBozza() {
   return (
     <div className="relative" ref={box}>
       <BottoneBarra onClick={() => setAperta(a => !a)} attivo={aperta} aria-expanded={aperta} aria-label="Scegli la bozza visiva">
-        <Tavolozza size={18} /><span className="hidden sm:inline">Bozza {attuale.id.toUpperCase()} · {attuale.nome}</span>
+        <Tavolozza size={18} /><span className="hidden sm:inline">Bozza: {attuale.nome}</span>
       </BottoneBarra>
       <AnimatePresence>
         {aperta && (
@@ -63,7 +63,7 @@ function SceltaBozza() {
             initial={{ opacity: 0, y: -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.18 }}
             className="absolute right-0 top-12 z-50 w-[min(340px,calc(100vw-32px))] origin-top-right rounded-bozza border border-filetto bg-superficie p-2 shadow-2xl shadow-black/30">
-            <p className="px-3 pb-1 pt-2 text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-tenue">Tre direzioni per il nuovo sito</p>
+            <p className="px-3 pb-1 pt-2 text-[0.84rem] font-semibold text-tenue">Tre direzioni per il nuovo sito</p>
             {BOZZE.map(b => (
               <button key={b.id} type="button" onClick={() => { setBozza(b.id); setAperta(false); }}
                 className={`flex w-full items-start gap-3 rounded-bozza-sm px-3 py-3 text-left transition-colors ${b.id === bozza ? "bg-accento/10" : "hover:bg-testo/5"}`}>

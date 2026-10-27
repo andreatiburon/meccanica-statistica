@@ -3,8 +3,9 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useApp } from "../App.jsx";
 import { Gioca, Indietro, Ingrandisci, Pausa, Rivedi } from "./icone.jsx";
 
-// Lettore dei film Manim: il video si ferma alla fine di ogni passo e la didascalia spiega il passo corrente,
-// così chi studia decide il ritmo. «Tutto di seguito» lo fa scorrere senza fermate.
+// Lettore dei film Manim: il film scorre fluido e la didascalia segue il passo corrente; i segmenti della barra
+// portano a un passo preciso. Con «Fermati a ogni passo» il video si ferma alla fine di ciascuno, per chi vuole
+// decidere il ritmo.
 const EPS = 0.06;
 
 export default function Film({ nome, grande = false }) {
@@ -15,7 +16,7 @@ export default function Film({ nome, grande = false }) {
   const riemp = useRef([]);
   const [i, setI] = useState(0);
   const [stato, setStato] = useState("nuovo"); // nuovo | gioca | pausa (a metà) | fermo (fine del passo)
-  const [tutto, setTutto] = useState(false);
+  const [tutto, setTutto] = useState(true);
   const stRef = useRef({ i, stato, tutto });
   stRef.current = { i, stato, tutto };
 
@@ -88,8 +89,8 @@ export default function Film({ nome, grande = false }) {
   if (!info) return null;
   return (
     <figure className={`m-0 overflow-hidden border border-filetto/70 bg-superficie font-ui ${grande ? "rounded-bozza" : "rounded-bozza"}`}>
-      <div className="relative aspect-video bg-[#0B1020]">
-        <video ref={v} className="absolute inset-0 h-full w-full" poster={`video/${nome}.jpg`} preload="none" playsInline muted
+      <div className="relative aspect-video bg-schermo">
+        <video ref={v} className="absolute inset-0 h-full w-full" poster={`video/${nome}.jpg`} preload="metadata" playsInline muted
           onClick={premi} onEnded={() => { setI(N - 1); setStato("fermo"); }}>
           <source src={`video/${nome}.mp4`} type="video/mp4" />
         </video>
@@ -97,18 +98,22 @@ export default function Film({ nome, grande = false }) {
           {stato === "nuovo" && (
             <motion.button type="button" onClick={() => vaiA(0)} exit={{ opacity: 0, scale: 0.96 }}
               whileTap={{ scale: 0.96 }}
-              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 whitespace-nowrap rounded-full border border-white/25 bg-black/55 py-3 pl-4 pr-6 text-[0.95rem] font-medium text-white backdrop-blur-md">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-[#F2C14E] text-[#0B1020]"><Gioca size={16} /></span>
-              Guarda passo per passo
+              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 whitespace-nowrap rounded-full border border-testo/25 bg-fondo/70 py-3 pl-4 pr-6 text-[0.95rem] font-medium text-testo backdrop-blur-md">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-accento text-fondo"><Gioca size={16} /></span>
+              Guarda il film
             </motion.button>
           )}
         </AnimatePresence>
       </div>
       <figcaption className="grid gap-3 p-4">
         <div className="flex items-baseline gap-3">
-          <span className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-accento">Film</span>
+          <span className="text-[0.84rem] font-semibold text-accento">Film</span>
           <span className="min-w-0 flex-1 truncate font-display text-[1.05rem] text-testo">{info.titolo}</span>
           <span className="tabulare text-[0.8rem] text-tenue">{i + 1} / {N}</span>
+          {!grande && (
+            <button type="button" onClick={() => { v.current?.pause(); setStato(s => (s === "gioca" ? "pausa" : s)); apriFilm(nome); }}
+              aria-label="Apri il film in grande" className="-my-2 grid h-9 w-9 place-items-center rounded-full text-testo-2 hover:bg-testo/5"><Ingrandisci size={17} /></button>
+          )}
         </div>
         <ol className="m-0 flex list-none gap-1 p-0">
           {P.map((p, k) => (
@@ -137,13 +142,9 @@ export default function Film({ nome, grande = false }) {
             {stato === "gioca" ? <Pausa size={16} /> : <Gioca size={16} />}{etichetta}
           </motion.button>
           <label className="ml-1 inline-flex h-11 cursor-pointer items-center gap-2 text-[0.84rem] text-testo-2">
-            <input type="checkbox" checked={tutto} onChange={e => setTutto(e.target.checked)} className="h-4 w-4" />
-            tutto di seguito
+            <input type="checkbox" checked={!tutto} onChange={e => setTutto(!e.target.checked)} className="h-4 w-4" />
+            Fermati a ogni passo
           </label>
-          {!grande && (
-            <Tasto onClick={() => { v.current?.pause(); setStato(s => (s === "gioca" ? "pausa" : s)); apriFilm(nome); }}
-              aria-label="Apri il film in grande" className="ml-auto"><Ingrandisci size={18} /></Tasto>
-          )}
         </div>
       </figcaption>
     </figure>

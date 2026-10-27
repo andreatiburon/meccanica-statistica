@@ -40,7 +40,7 @@ class SerbatoioBoltzmann(Lezione):
         quad = VGroup(*[Square(cella * 0.92, stroke_width=0, fill_opacity=1)
                         .move_to(o + np.array([(i % lato - lato / 2 + 0.5) * cella, (lato / 2 - 0.5 - i // lato) * cella, 0]))
                         for i in range(lato * lato)])
-        colori = [ManimColor("#1D2747")] + [termico(min(1.0, 0.15 + 0.17 * k)) for k in range(1, 7)]
+        colori = [ManimColor(SPENTO)] + [termico(min(1.0, 0.15 + 0.17 * k)) for k in range(1, 7)]
         f = ValueTracker(0)
 
         def agg(g):
