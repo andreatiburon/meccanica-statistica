@@ -359,3 +359,15 @@ details.ripasso ul { padding: 4px 24px 12px 40px; margin: 0; }
 .cassetto-stato { color: var(--tenue); font: 14px var(--f-ui); }
 
 @media (max-width: 600px) { .katex-display > .katex { font-size: .9em; } .corpo { font-size: 17.5px; } }
+
+/* quadrato termodinamico nella lezione di termodinamica */
+.quadrato-termo { display: flex; justify-content: center; margin: 18px 0; color: var(--testo); }
+.quadrato-termo svg { width: min(260px, 72%); height: auto; }
+
+/* elenco dei laboratori piccoli nella pagina Laboratorio */
+.titolo-sezione { font: italic 400 30px/1.2 var(--f-display); margin: 44px 0 14px; color: var(--testo); }
+.elenco-lab { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.elenco-lab a { display: grid; gap: 4px; padding: 13px 15px; border: 1px solid var(--filetto); border-radius: 12px; background: rgba(23, 32, 66, .55); text-decoration: none; color: var(--testo); }
+.elenco-lab a:hover { border-color: var(--filetto-chiaro); background: rgba(31, 42, 82, .65); }
+.elenco-lab b { font: italic 500 17px/1.3 var(--f-testo); }
+.elenco-lab span { font: 12px/1.3 var(--f-ui); color: var(--tenue); letter-spacing: .04em; }
