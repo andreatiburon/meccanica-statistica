@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from comune import CALDO, FONDO, FREDDO, INCHIOSTRO, MONO, ORO, SERIF, SPENTO, TENUE, Lezione  # noqa: E402
+from comune import CALDO, FONDO, FREDDO, INCHIOSTRO, MONO, ORO, SERIF, SPENTO, TENUE, Lezione, etichetta  # noqa: E402
 from manim import *  # noqa: E402
 
 # Palette e caratteri vengono da comune.py (tema scelto con TEMA_FILM).
@@ -29,8 +29,6 @@ def titolo(testo, sotto=None):
     return VGroup(t, s)
 
 
-def etichetta(testo, size=18, color=TENUE):
-    return Text(testo, font=MONO, font_size=size, color=color)
 
 
 def termico(x):

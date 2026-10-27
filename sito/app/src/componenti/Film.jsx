@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useId, useRef, useState } from "react";
 import { useApp } from "../App.jsx";
-import { Gioca, Indietro, Ingrandisci, Pausa, Rivedi } from "./icone.jsx";
+import { Avanti, Gioca, Indietro, Ingrandisci, Pausa } from "./icone.jsx";
 
-// Lettore dei film Manim: il film scorre fluido e la didascalia segue il passo corrente; i segmenti della barra
-// portano a un passo preciso. Con «Fermati a ogni passo» il video si ferma alla fine di ciascuno, per chi vuole
-// decidere il ritmo.
-const EPS = 0.06;
+// Lettore dei film Manim, alla 3Blue1Brown: il film scorre senza fermarsi (i tempi di lettura sono già nel film,
+// vedi sito/animazioni/comune.py) e la didascalia segue il passo in corso. La barra dei passi e i tasti
+// precedente/successivo servono per saltare; un tocco sul video lo mette in pausa.
+const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
 export default function Film({ nome, grande = false }) {
   const { indice, apriFilm } = useApp();
@@ -14,51 +14,44 @@ export default function Film({ nome, grande = false }) {
   const id = useId();
   const v = useRef(null);
   const riemp = useRef([]);
+  const orologio = useRef(null);
   const [i, setI] = useState(0);
-  const [stato, setStato] = useState("nuovo"); // nuovo | gioca | pausa (a metà) | fermo (fine del passo)
-  const [tutto, setTutto] = useState(true);
-  const stRef = useRef({ i, stato, tutto });
-  stRef.current = { i, stato, tutto };
+  const [stato, setStato] = useState("nuovo"); // nuovo | gioca | pausa | finito
+  const stRef = useRef(stato);
+  stRef.current = stato;
 
   const P = info?.passi ?? [];
   const N = P.length;
   const fine = P.map((p, k) => (k + 1 < N ? P[k + 1].t : info.durata));
+  const passoA = t => { let k = 0; while (k + 1 < N && t >= P[k + 1].t - 0.02) k++; return k; };
 
-  // un solo film alla volta: chi parte ferma gli altri
+  // un solo film alla volta: chi parte mette in pausa gli altri
   useEffect(() => {
-    const altro = e => { if (e.detail !== id && stRef.current.stato === "gioca") { v.current?.pause(); setStato("pausa"); } };
+    const altro = e => { if (e.detail !== id && stRef.current === "gioca") { v.current?.pause(); setStato("pausa"); } };
     addEventListener("ms:film", altro);
     return () => removeEventListener("ms:film", altro);
   }, [id]);
 
-  // durante la riproduzione: barre di avanzamento e fermata a fine passo
+  // durante la riproduzione: passo corrente, barre e orologio seguono il video, fotogramma per fotogramma
   useEffect(() => {
-    if (stato !== "gioca") { barre(); return; }
+    aggiorna();
+    if (stato !== "gioca") return;
     let raf;
-    const segui = () => {
-      const t = v.current?.currentTime ?? 0;
-      const { i: k, tutto: tt } = stRef.current;
-      if (tt) {
-        if (k + 1 < N && t >= P[k + 1].t) setI(k + 1);
-      } else if (t >= fine[k] - EPS) {
-        v.current.pause();
-        setStato("fermo");
-        barre(k, fine[k]);
-        return;
-      }
-      barre(k, t);
-      raf = requestAnimationFrame(segui);
-    };
+    const segui = () => { aggiorna(); raf = requestAnimationFrame(segui); };
     raf = requestAnimationFrame(segui);
     return () => cancelAnimationFrame(raf);
   });
 
-  function barre(k = i, t = v.current?.currentTime ?? 0) {
+  function aggiorna() {
+    const t = v.current?.currentTime ?? 0;
+    const k = stato === "nuovo" ? 0 : passoA(t);
+    if (k !== i) setI(k);
     riemp.current.forEach((el, j) => {
       if (!el) return;
-      const f = j < k ? 1 : j > k ? 0 : Math.max(0, Math.min(1, (t - P[j].t) / Math.max(fine[j] - P[j].t, 0.01)));
-      el.style.transform = `scaleX(${stato === "nuovo" ? 0 : f})`;
+      const f = stato === "nuovo" ? 0 : Math.max(0, Math.min(1, (t - P[j].t) / Math.max(fine[j] - P[j].t, 0.01)));
+      el.style.transform = `scaleX(${f})`;
     });
+    if (orologio.current) orologio.current.textContent = `${mmss(t)} / ${mmss(info.durata)}`;
   }
 
   function gioca() {
@@ -81,17 +74,16 @@ export default function Film({ nome, grande = false }) {
   function premi() {
     if (stato === "gioca") { v.current.pause(); setStato("pausa"); }
     else if (stato === "pausa") gioca();
-    else if (stato === "nuovo") vaiA(0);
-    else vaiA(i + 1 < N ? i + 1 : 0);
+    else vaiA(0);
   }
-  const etichetta = { gioca: "Pausa", pausa: "Riprendi", nuovo: "Inizia" }[stato] || (i + 1 < N ? "Passo successivo" : "Ricomincia");
+  const etichetta = { gioca: "Pausa", pausa: "Riprendi", nuovo: "Guarda", finito: "Rivedi" }[stato];
 
   if (!info) return null;
   return (
-    <figure className={`m-0 overflow-hidden border border-filetto/70 bg-superficie font-ui ${grande ? "rounded-bozza" : "rounded-bozza"}`}>
+    <figure className="m-0 overflow-hidden rounded-bozza border border-filetto/70 bg-superficie font-ui">
       <div className="relative aspect-video bg-schermo">
         <video ref={v} className="absolute inset-0 h-full w-full" poster={`video/${nome}.jpg`} preload="metadata" playsInline muted
-          onClick={premi} onEnded={() => { setI(N - 1); setStato("fermo"); }}>
+          onClick={premi} onEnded={() => setStato("finito")}>
           <source src={`video/${nome}.mp4`} type="video/mp4" />
         </video>
         <AnimatePresence>
@@ -100,7 +92,7 @@ export default function Film({ nome, grande = false }) {
               whileTap={{ scale: 0.96 }}
               className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3 whitespace-nowrap rounded-full border border-testo/25 bg-fondo/70 py-3 pl-4 pr-6 text-[0.95rem] font-medium text-testo backdrop-blur-md">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-accento text-fondo"><Gioca size={16} /></span>
-              Guarda il film
+              Guarda il film, {Math.round(info.durata)} secondi
             </motion.button>
           )}
         </AnimatePresence>
@@ -109,7 +101,7 @@ export default function Film({ nome, grande = false }) {
         <div className="flex items-baseline gap-3">
           <span className="text-[0.84rem] font-semibold text-accento">Film</span>
           <span className="min-w-0 flex-1 truncate font-display text-[1.05rem] text-testo">{info.titolo}</span>
-          <span className="tabulare text-[0.8rem] text-tenue">{i + 1} / {N}</span>
+          <span className="tabulare text-[0.8rem] text-tenue">passo {i + 1} di {N}</span>
           {!grande && (
             <button type="button" onClick={() => { v.current?.pause(); setStato(s => (s === "gioca" ? "pausa" : s)); apriFilm(nome); }}
               aria-label="Apri il film in grande" className="-my-2 grid h-9 w-9 place-items-center rounded-full text-testo-2 hover:bg-testo/5"><Ingrandisci size={17} /></button>
@@ -118,8 +110,7 @@ export default function Film({ nome, grande = false }) {
         <ol className="m-0 flex list-none gap-1 p-0">
           {P.map((p, k) => (
             <li key={k} style={{ flex: Math.max(fine[k] - p.t, 0.5) }}>
-              <button type="button" onClick={() => vaiA(k)} aria-label={`Vai al passo ${k + 1}`}
-                className="group block w-full py-2.5">
+              <button type="button" onClick={() => vaiA(k)} aria-label={`Vai al passo ${k + 1}`} className="block w-full py-2.5">
                 <span className={`relative block h-1.5 overflow-hidden rounded-full transition-colors ${k === i ? "bg-testo/25" : "bg-testo/10"}`}>
                   <span ref={el => (riemp.current[k] = el)} className="absolute inset-0 origin-left bg-accento" style={{ transform: "scaleX(0)" }} />
                 </span>
@@ -130,21 +121,18 @@ export default function Film({ nome, grande = false }) {
         <div className="min-h-[4.8em]" aria-live="polite">
           <AnimatePresence mode="wait" initial={false}>
             <motion.p key={i} className="didascalia m-0 font-testo text-[1.02rem] leading-relaxed text-testo-2"
-              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.22 }}
+              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} transition={{ duration: 0.25 }}
               dangerouslySetInnerHTML={{ __html: P[i].html }} />
           </AnimatePresence>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Tasto onClick={() => vaiA(i - 1)} disabled={i === 0 && stato === "nuovo"} aria-label="Passo precedente"><Indietro size={18} /></Tasto>
-          <Tasto onClick={() => vaiA(i)} aria-label="Rivedi il passo"><Rivedi size={18} /></Tasto>
+        <div className="flex items-center gap-2">
+          <Tasto onClick={() => vaiA(i - 1)} disabled={i === 0} aria-label="Passo precedente"><Indietro size={18} /></Tasto>
           <motion.button type="button" onClick={premi} whileTap={{ scale: 0.97 }}
-            className="inline-flex h-11 items-center gap-2 rounded-full bg-accento px-5 text-[0.9rem] font-semibold text-fondo">
+            className="inline-flex h-11 min-w-[8.5rem] items-center justify-center gap-2 rounded-full bg-accento px-5 text-[0.9rem] font-semibold text-fondo">
             {stato === "gioca" ? <Pausa size={16} /> : <Gioca size={16} />}{etichetta}
           </motion.button>
-          <label className="ml-1 inline-flex h-11 cursor-pointer items-center gap-2 text-[0.84rem] text-testo-2">
-            <input type="checkbox" checked={!tutto} onChange={e => setTutto(!e.target.checked)} className="h-4 w-4" />
-            Fermati a ogni passo
-          </label>
+          <Tasto onClick={() => vaiA(i + 1)} disabled={i === N - 1} aria-label="Passo successivo"><Avanti size={18} /></Tasto>
+          <span ref={orologio} className="tabulare ml-auto text-[0.8rem] text-tenue">0:00 / {mmss(info.durata)}</span>
         </div>
       </figcaption>
     </figure>

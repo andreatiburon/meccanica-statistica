@@ -2,11 +2,12 @@
 
 Ogni film è una sottoclasse di `Lezione`. Durante la scena, `self.passo("…")` segna
 l'inizio di un passaggio con la sua didascalia: alla fine del rendering i passi
-vengono scritti in `sito/galleria/video/<USCITA>.json`, e il lettore del sito
-ferma il video alla fine di ogni passo.
+vengono scritti in `sito/galleria/video/<USCITA>.json`. Prima di ogni nuovo passo
+(e alla fine) il film resta fermo quanto basta per leggere la didascalia precedente.
 """
 import json
 import os
+import re
 from pathlib import Path
 
 import numpy as np
@@ -45,7 +46,9 @@ def titolo(testo, sotto=None):
 
 
 def etichetta(testo, size=18, color=TENUE):
-    return Text(testo, font=MONO, font_size=size, color=color)
+    """Etichetta di testo; «k_B», «ε_F», «T_c» diventano pedici veri, come nelle didascalie del sito."""
+    t = testo.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    return MarkupText(re.sub(r"_([A-Za-z0-9])", r"<sub>\1</sub>", t), font=MONO, font_size=size, color=color)
 
 
 def nota(testo, size=22, color=INCHIOSTRO):
@@ -79,6 +82,11 @@ def termico(x):
     return interpolate_color(ManimColor(INCHIOSTRO), ManimColor(CALDO), (x - 0.5) * 2)
 
 
+# Ritmo di lettura delle didascalie: 4 parole al secondo, più un secondo abbondante per guardare l'immagine.
+LETTURA = 4.0
+RESPIRO = 1.2
+
+
 class Lezione(Scene):
     USCITA = None   # nome del file nel sito
     TITOLO = ""     # titolo mostrato nel lettore
@@ -87,11 +95,24 @@ class Lezione(Scene):
         self._passi = []
 
     def passo(self, testo):
+        self._tempo_di_lettura()
         self._passi.append({"t": round(float(self.renderer.time), 3), "testo": testo})
+
+    def _tempo_di_lettura(self):
+        """Alla 3Blue1Brown: il film non si ferma mai, ma dopo ogni passo l'immagine resta sullo schermo
+        finché la didascalia non si è potuta leggere con calma (LETTURA parole al secondo più un RESPIRO)."""
+        if not self._passi:
+            return
+        p = self._passi[-1]
+        serve = len(p["testo"].split()) / LETTURA + RESPIRO
+        trascorso = float(self.renderer.time) - p["t"]
+        if trascorso < serve:
+            self.wait(serve - trascorso)
 
     def tear_down(self):
         if not self._passi:
             return
+        self._tempo_di_lettura()
         VIDEO.mkdir(parents=True, exist_ok=True)
         dati = {"titolo": self.TITOLO, "durata": round(float(self.renderer.time), 3), "passi": self._passi}
         (VIDEO / f"{self.USCITA}.json").write_text(json.dumps(dati, ensure_ascii=False, indent=1))
