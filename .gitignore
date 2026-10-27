@@ -10,3 +10,9 @@ _site/
 _site_privato/
 scripts/node_modules/
 __pycache__/
+# Nuovo sito (sito/app): dipendenze, dati generati da scripts/contenuti.py e build
+sito/app/node_modules/
+sito/app/public/dati/
+sito/app/public/video/
+sito/app/public/katex/
+_app/

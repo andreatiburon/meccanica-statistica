@@ -1,0 +1,236 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================ token delle bozze
+   Ogni bozza ridefinisce gli stessi token (canali RGB, così Tailwind può dosare l'opacità).
+   I colori semantici hanno un ruolo fisso in tutte le bozze, nei laboratori e nella lavagna:
+   energia (E, H, ε)  ·  temperatura fredda → calda (T, β)  ·  entropia (S, Γ)  ·  probabilità (ρ, P)
+   ·  particelle (N, μ)  ·  energia libera e funzione di partizione (A, Q, Z).
+
+   A · Nebbia     la camera a nebbia del sito attuale, resa fluida: blu notte, vetro, Spectral.
+   B · Lavagna    il fondo nero dei film alla 3Blue1Brown, tutto in carattere da LaTeX, colori saturi.
+   C · Quaderno   il quaderno a quadretti con il margine: inchiostro blu, penna rossa, evidenziatore. */
+
+:root {
+  --fondo: 17 25 51;
+  --fondo-2: 23 32 66;
+  --superficie: 27 37 76;
+  --schermo: 11 16 32;
+  --filetto: 52 66 112;
+  --testo: 236 232 222;
+  --testo-2: 180 187 206;
+  --tenue: 136 145 172;
+  --accento: 242 193 78;
+  --link: 169 194 250;
+  --energia: 242 193 78;
+  --freddo: 120 160 240;
+  --caldo: 242 149 99;
+  --termo-medio: 232 229 220;
+  --entropia: 183 156 242;
+  --probabilita: 111 211 160;
+  --particelle: 92 200 217;
+  --libera: 242 123 168;
+  --idea: 120 160 240;
+  --attenzione: 242 149 99;
+  --f-display: "Spectral", Georgia, serif;
+  --f-testo: "Spectral", Georgia, "Times New Roman", serif;
+  --f-ui: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", "DejaVu Sans Mono", Menlo, monospace;
+  --f-mano: "Spectral", Georgia, serif;
+  --raggio: 20px;
+  --raggio-sm: 12px;
+  --corpo: 19.5px;
+  --interlinea: 1.68;
+  color-scheme: dark;
+}
+
+:root[data-bozza="b"] {
+  --fondo: 12 13 16;
+  --fondo-2: 18 19 24;
+  --superficie: 24 26 32;
+  --schermo: 0 0 0;
+  --filetto: 52 55 66;
+  --testo: 238 238 234;
+  --testo-2: 190 192 198;
+  --tenue: 128 132 144;
+  --accento: 88 196 221;
+  --link: 88 196 221;
+  --energia: 255 217 90;
+  --freddo: 88 196 221;
+  --caldo: 252 98 85;
+  --termo-medio: 236 236 230;
+  --entropia: 169 139 224;
+  --probabilita: 131 193 103;
+  --particelle: 92 208 179;
+  --libera: 255 138 192;
+  --idea: 131 193 103;
+  --attenzione: 252 98 85;
+  --f-display: "STIX Two Text", "Times New Roman", serif;
+  --f-testo: "STIX Two Text", "Times New Roman", serif;
+  --f-ui: "Atkinson Hyperlegible", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "JetBrains Mono", "DejaVu Sans Mono", Menlo, monospace;
+  --f-mano: "STIX Two Text", "Times New Roman", serif;
+  --raggio: 6px;
+  --raggio-sm: 4px;
+  --corpo: 20px;
+  --interlinea: 1.62;
+  color-scheme: dark;
+}
+
+:root[data-bozza="c"] {
+  --fondo: 250 250 246;
+  --fondo-2: 243 244 240;
+  --superficie: 255 255 252;
+  --schermo: 253 253 250;
+  --filetto: 196 206 222;
+  --testo: 27 38 66;
+  --testo-2: 62 74 104;
+  --tenue: 112 122 146;
+  --accento: 39 71 184;
+  --link: 39 71 184;
+  --energia: 176 116 14;
+  --freddo: 37 99 201;
+  --caldo: 210 70 43;
+  --termo-medio: 120 110 140;
+  --entropia: 124 77 203;
+  --probabilita: 34 128 80;
+  --particelle: 14 132 150;
+  --libera: 194 59 122;
+  --idea: 255 226 92;
+  --attenzione: 210 53 43;
+  --f-display: "Source Serif 4", Georgia, serif;
+  --f-testo: "Source Serif 4", Georgia, serif;
+  --f-ui: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", Menlo, monospace;
+  --f-mano: "Caveat", "Comic Sans MS", cursive;
+  --raggio: 4px;
+  --raggio-sm: 3px;
+  --corpo: 19.5px;
+  --interlinea: 1.66;
+  --quadretto: 22px;
+  color-scheme: light;
+}
+/* il quaderno di notte: stessa carta, a luce spenta */
+@media (prefers-color-scheme: dark) {
+  :root[data-bozza="c"]:not([data-theme="light"]) {
+    --fondo: 22 27 38; --fondo-2: 28 34 47; --superficie: 31 38 52; --schermo: 18 22 31; --filetto: 58 70 94;
+    --testo: 226 230 238; --testo-2: 184 192 208; --tenue: 128 138 160; --accento: 132 160 255; --link: 132 160 255;
+    --energia: 236 184 80; --freddo: 112 160 250; --caldo: 245 120 90; --termo-medio: 200 196 210; --entropia: 182 150 245;
+    --probabilita: 110 200 140; --particelle: 90 200 215; --libera: 240 130 180; --idea: 236 200 70; --attenzione: 245 105 90;
+    color-scheme: dark;
+  }
+}
+:root[data-bozza="c"][data-theme="dark"] {
+  --fondo: 22 27 38; --fondo-2: 28 34 47; --superficie: 31 38 52; --schermo: 18 22 31; --filetto: 58 70 94;
+  --testo: 226 230 238; --testo-2: 184 192 208; --tenue: 128 138 160; --accento: 132 160 255; --link: 132 160 255;
+  --energia: 236 184 80; --freddo: 112 160 250; --caldo: 245 120 90; --termo-medio: 200 196 210; --entropia: 182 150 245;
+  --probabilita: 110 200 140; --particelle: 90 200 215; --libera: 240 130 180; --idea: 236 200 70; --attenzione: 245 105 90;
+  color-scheme: dark;
+}
+
+/* ================================================================ fondo e base */
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 88px; }
+body {
+  margin: 0;
+  background: rgb(var(--fondo));
+  color: rgb(var(--testo));
+  font: var(--corpo) / var(--interlinea) var(--f-testo);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60;
+  background: rgb(var(--fondo));
+}
+/* l'atmosfera di ogni bozza sta in un unico strato fisso dietro a tutto */
+.atmosfera { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+:root[data-bozza="a"] .atmosfera, :root:not([data-bozza]) .atmosfera {
+  background:
+    radial-gradient(1100px 680px at 6% -12%, rgb(91 134 224 / .22), transparent 62%),
+    radial-gradient(900px 620px at 104% -4%, rgb(242 149 99 / .11), transparent 60%),
+    radial-gradient(rgb(236 232 222 / .055) 1px, transparent 1.5px) 0 0 / 22px 22px;
+}
+:root[data-bozza="b"] .atmosfera {
+  background: radial-gradient(1200px 800px at 50% -20%, rgb(255 255 255 / .04), transparent 70%);
+}
+:root[data-bozza="c"] .atmosfera {
+  background:
+    linear-gradient(rgb(var(--filetto) / .38) 1px, transparent 1px) 0 0 / var(--quadretto) var(--quadretto),
+    linear-gradient(90deg, rgb(var(--filetto) / .38) 1px, transparent 1px) 0 0 / var(--quadretto) var(--quadretto);
+}
+
+::selection { background: rgb(var(--accento) / .3); }
+:focus-visible { outline: 2px solid rgb(var(--accento)); outline-offset: 3px; border-radius: 4px; }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+h1, h2, h3 { text-wrap: balance; }
+
+/* ================================================================ testo delle lezioni */
+.prosa { max-width: 64ch; }
+.prosa > * + * { margin-top: 1em; }
+.prosa p { margin: 0; }
+.prosa p + p { margin-top: .9em; }
+.prosa strong { font-weight: 600; color: rgb(var(--testo)); }
+.prosa em { font-style: italic; }
+.prosa ul, .prosa ol { margin: .8em 0; padding-left: 1.3em; }
+.prosa li + li { margin-top: .35em; }
+.prosa li::marker { color: rgb(var(--tenue)); font-family: var(--f-ui); font-size: .85em; }
+.prosa a, .prosa .wl { color: rgb(var(--link)); text-decoration: underline; text-decoration-color: rgb(var(--link) / .35); text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+.prosa a:hover { text-decoration-color: rgb(var(--link)); }
+.prosa .wl.stub { color: rgb(var(--testo-2)); text-decoration-style: dotted; text-decoration-color: rgb(var(--tenue)); }
+.prosa .katex { font-size: 1.06em; }
+.prosa .katex-display { margin: 1.1em 0; padding: .25em 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; transition: background-color .5s; border-radius: 8px; }
+.prosa .katex-display > .katex { font-size: 1.1em; }
+.prosa .katex-display.lampeggia { background: rgb(var(--accento) / .14); }
+.prosa .cit {
+  display: inline-block; font: 500 .62em/1.5 var(--f-mono); letter-spacing: .02em;
+  padding: .12em .5em; margin: 0 .1em; border-radius: 999px; vertical-align: .18em; white-space: nowrap;
+  color: rgb(var(--tenue)); background: rgb(var(--testo) / .06); border: 1px solid rgb(var(--filetto) / .8);
+}
+.prosa .divergenza { padding-left: .9em; border-left: 2px dashed rgb(var(--attenzione) / .6); }
+.prosa .tabella { overflow-x: auto; margin: 1.2em 0; }
+.prosa table { border-collapse: collapse; font-size: .86em; min-width: 100%; }
+.prosa th, .prosa td { padding: .45em .7em; border-bottom: 1px solid rgb(var(--filetto)); text-align: left; vertical-align: top; }
+.prosa th { font: 600 .78em/1.4 var(--f-ui); letter-spacing: .04em; text-transform: uppercase; color: rgb(var(--tenue)); }
+.prosa code { font: .85em var(--f-mono); }
+.prosa hr { border: 0; border-top: 1px solid rgb(var(--filetto)); margin: 2em 0; }
+.prosa sup, .prosa sub { line-height: 0; }
+
+/* il blocco «idea» nel quaderno è un passaggio di evidenziatore */
+:root[data-bozza="c"] .blocco-idea { background: rgb(var(--idea) / .24); border-color: transparent; }
+:root[data-bozza="c"] .blocco-idea .etichetta-mano { color: rgb(var(--testo-2)); }
+/* il margine rosso del quaderno, a sinistra della colonna di testo */
+:root[data-bozza="c"] .colonna-testo { padding-left: 22px; box-shadow: inset 2px 0 0 rgb(var(--attenzione) / .45); }
+:root[data-bozza="c"] .etichetta-mano { font-family: var(--f-mano); font-size: 1.45rem; letter-spacing: 0; text-transform: none; font-weight: 600; }
+
+/* lavagna: le formule della sezione a destra */
+.lavagna .katex-display { margin: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.lavagna .katex { font-size: 1em; }
+
+/* didascalie dei film */
+.didascalia sup, .didascalia sub { font-size: .72em; line-height: 0; }
+
+input[type="range"] { accent-color: rgb(var(--accento)); }
+.cursore { -webkit-appearance: none; appearance: none; width: 100%; height: 36px; background: transparent; touch-action: pan-y; }
+.cursore::-webkit-slider-runnable-track { height: 6px; border-radius: 99px; background: rgb(var(--filetto)); }
+.cursore::-moz-range-track { height: 6px; border-radius: 99px; background: rgb(var(--filetto)); }
+.cursore::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; margin-top: -10px; border-radius: 50%; background: rgb(var(--accento)); border: 3px solid rgb(var(--superficie)); box-shadow: 0 1px 6px rgb(0 0 0 / .35); }
+.cursore::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: rgb(var(--accento)); border: 3px solid rgb(var(--superficie)); }
+
+.scorri-x { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.scorri-x::-webkit-scrollbar { display: none; }
+.tabulare { font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}
+
+/* il filetto di Boltzmann è la firma della bozza A */
+.filetto { display: none; }
+:root[data-bozza="a"] .filetto { display: block; }
+
+/* i laboratori si adattano alla loro larghezza (banco stretto o testo largo), non a quella dello schermo */
+.lab { container-type: inline-size; }
+.grafici-langevin { aspect-ratio: 4 / 3.4; }
+@container (min-width: 520px) { .grafici-langevin { aspect-ratio: 16 / 7; } }
