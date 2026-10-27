@@ -1,25 +1,25 @@
 {
  "titolo": "Campo medio di Bragg-Williams",
- "durata": 27.8,
+ "durata": 43.217,
  "passi": [
   {
    "t": 0.0,
    "testo": "Bragg-Williams: ogni spin sente il campo esterno più il campo medio εγL dei suoi γ vicini. La magnetizzazione per sito L deve risolvere L = tanh[β(H₀ + εγL)]: la retta contro la tangente iperbolica."
   },
   {
-   "t": 3.8,
+   "t": 9.7,
    "testo": "Sopra T_c = γε/k_B l'unica intersezione è L = 0, e l'energia libera in funzione di L ha un solo minimo."
   },
   {
-   "t": 6.4,
+   "t": 16.133,
    "testo": "Scendendo sotto T_c la tangente iperbolica diventa più ripida della retta nell'origine: compaiono due soluzioni ±L₀. L = 0 diventa un massimo e l'energia libera si piega in due minimi simmetrici."
   },
   {
-   "t": 13.4,
+   "t": 25.067,
    "testo": "Vicino a T_c la magnetizzazione spontanea cresce come L₀ ≈ √3 (1 − T/T_c)^{1/2}: l'esponente critico del campo medio è β = 1/2. Il modello 2D esatto ha invece β = 1/8."
   },
   {
-   "t": 19.3,
+   "t": 34.267,
    "testo": "Un campo esterno H₀ inclina l'energia libera: uno dei due minimi diventa più profondo e la simmetria su ↔ giù si rompe. Il sistema sceglie il segno della magnetizzazione dal campo."
   }
  ]

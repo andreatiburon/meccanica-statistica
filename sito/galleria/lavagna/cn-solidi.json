@@ -1,21 +1,21 @@
 {
  "titolo": "Calore specifico dei solidi: Einstein e Debye",
- "durata": 20.0,
+ "durata": 36.767,
  "passi": [
   {
    "t": 0.0,
    "testo": "Classicamente un solido è un insieme di 3N oscillatori indipendenti, i modi normali, ciascuno con energia media k_BT: C_V = 3Nk_B, la legge di Dulong-Petit, uguale per tutti i solidi e a ogni temperatura."
   },
   {
-   "t": 3.4,
+   "t": 9.7,
    "testo": "Ma a bassa temperatura C_V va a zero. Einstein: tutti i 3N modi oscillano alla stessa frequenza ω_E, e ognuno è un oscillatore quantistico. Θ = ħω_E/k_B."
   },
   {
-   "t": 7.6,
+   "t": 17.633,
    "testo": "Debye: le frequenze sono quelle di onde sonore, distribuite come ω² fino a una frequenza massima fissata dalla distanza tra gli atomi. Θ = ħω_max/k_B. Le due curve sembrano simili..."
   },
   {
-   "t": 12.0,
+   "t": 26.317,
    "testo": "...ma in scala logaritmica la differenza è netta. Einstein crolla esponenzialmente, come e^{−Θ/T}; Debye va come T³, perché a bassa T restano eccitabili i modi di bassa frequenza, che Einstein non ha. I dati sperimentali seguono T³."
   }
  ]

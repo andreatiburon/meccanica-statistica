@@ -1,25 +1,25 @@
 {
  "titolo": "Sistema a due livelli e temperature negative",
- "durata": 22.8,
+ "durata": 47.217,
  "passi": [
   {
    "t": 0.0,
    "testo": "N particelle, ciascuna sul livello 0 o sul livello ε. Con n particelle eccitate l'energia è E = nε e i microstati sono i modi di scegliere quali: Γ = N!/(n!(N−n)!)."
   },
   {
-   "t": 3.8,
+   "t": 8.95,
    "testo": "L'entropia S = k_B log Γ, per N grande, è la funzione −x log x − (1−x) log(1−x) di x = n/N: nulla con tutti giù o tutti su, massima a metà."
   },
   {
-   "t": 6.4,
+   "t": 18.133,
    "testo": "La pendenza di S(E) è 1/T. Finché meno di metà delle particelle è eccitata la pendenza è positiva, e scende man mano che aggiungiamo energia: T cresce."
   },
   {
-   "t": 11.0,
+   "t": 26.067,
    "testo": "A metà la pendenza è zero, T = ∞. Oltre metà diventa negativa: temperatura negativa, popolazione invertita. Un sistema a T < 0 non è più freddo dello zero assoluto: cede energia a qualunque sistema a T > 0."
   },
   {
-   "t": 16.2,
+   "t": 37.017,
    "testo": "A temperatura positiva, il calore specifico ha un picco quando k_BT è dell'ordine di ε: a bassa T non si eccita niente, ad alta T i due livelli sono già quasi equipopolati. È l'anomalia di Schottky."
   }
  ]

@@ -51,7 +51,7 @@ export default function Film({ nome, grande = false }) {
       const f = stato === "nuovo" ? 0 : Math.max(0, Math.min(1, (t - P[j].t) / Math.max(fine[j] - P[j].t, 0.01)));
       el.style.transform = `scaleX(${f})`;
     });
-    if (orologio.current) orologio.current.textContent = `${mmss(t)} / ${mmss(info.durata)}`;
+    if (orologio.current) orologio.current.textContent = `${mmss(t)} / ${mmss(Math.round(info.durata))}`;
   }
 
   function gioca() {
@@ -132,7 +132,7 @@ export default function Film({ nome, grande = false }) {
             {stato === "gioca" ? <Pausa size={16} /> : <Gioca size={16} />}{etichetta}
           </motion.button>
           <Tasto onClick={() => vaiA(i + 1)} disabled={i === N - 1} aria-label="Passo successivo"><Avanti size={18} /></Tasto>
-          <span ref={orologio} className="tabulare ml-auto text-[0.8rem] text-tenue">0:00 / {mmss(info.durata)}</span>
+          <span ref={orologio} className="tabulare ml-auto text-[0.8rem] text-tenue">0:00 / {mmss(Math.round(info.durata))}</span>
         </div>
       </figcaption>
     </figure>

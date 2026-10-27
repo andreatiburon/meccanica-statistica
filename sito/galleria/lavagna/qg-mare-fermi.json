@@ -1,21 +1,21 @@
 {
  "titolo": "Il mare di Fermi a bassa temperatura",
- "durata": 21.5,
+ "durata": 33.767,
  "passi": [
   {
    "t": 0.0,
    "testo": "A temperatura zero i fermioni occupano tutti gli stati fino all'energia di Fermi ε_F: la densità di stati √ε è riempita fino a lì e vuota sopra. È il mare di Fermi."
   },
   {
-   "t": 3.8,
+   "t": 9.2,
    "testo": "Scaldando, la distribuzione si smussa solo in una fascia larga qualche k_BT attorno a μ. Le particelle in profondità non possono eccitarsi: gli stati vicini sono già occupati."
   },
   {
-   "t": 8.8,
+   "t": 17.383,
    "testo": "Si eccitano circa k_BT g(ε_F) particelle, ognuna di circa k_BT: l'energia cresce come T² e il calore specifico è lineare in T, molto più piccolo del valore classico 3Nk_B/2."
   },
   {
-   "t": 14.4,
+   "t": 25.817,
    "testo": "Anche il potenziale chimico scende, di poco, secondo lo sviluppo di Sommerfeld. La linea tratteggiata segue μ calcolato esattamente; finché k_BT ≪ ε_F coincide con la formula."
   }
  ]

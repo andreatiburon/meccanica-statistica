@@ -1,21 +1,21 @@
 {
  "titolo": "Fermi-Dirac, Bose-Einstein e il limite classico",
- "durata": 15.7,
+ "durata": 33.267,
  "passi": [
   {
    "t": 0.0,
    "testo": "L'occupazione media di un livello in funzione di β(ε − μ). Per i fermioni non supera mai 1: vale 1/2 esattamente in ε = μ."
   },
   {
-   "t": 4.0,
+   "t": 7.45,
    "testo": "Per i bosoni l'occupazione diverge quando ε si avvicina a μ: per questo il potenziale chimico deve restare sotto il livello più basso, μ ≤ ε_min."
   },
   {
-   "t": 6.8,
+   "t": 15.133,
    "testo": "Quando β(ε − μ) ≫ 1 le due curve si confondono con e^{−β(ε−μ)}: con livelli quasi vuoti non importa più se due particelle possono stare nello stesso stato. È il limite classico."
   },
   {
-   "t": 10.8,
+   "t": 24.317,
    "testo": "La prima correzione all'equazione di stato ha segno opposto nei due casi: i fermioni spingono la pressione sopra quella classica, come se si respingessero; i bosoni sotto, come se si attraessero."
   }
  ]

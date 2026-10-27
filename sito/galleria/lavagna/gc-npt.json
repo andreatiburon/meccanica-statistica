@@ -1,21 +1,21 @@
 {
  "titolo": "Insieme NPT: un gas sotto un pistone",
- "durata": 22.7,
+ "durata": 34.167,
  "passi": [
   {
    "t": 0.0,
    "testo": "Un gas ideale chiuso da un pistone mobile, premuto da una pressione esterna P costante. Il volume non è più fissato: è una variabile che fluttua."
   },
   {
-   "t": 1.2,
+   "t": 7.7,
    "testo": "Partito troppo in alto, il pistone scende, rimbalza e si assesta: il volume oscilla attorno al valore in cui la pressione del gas bilancia P."
   },
   {
-   "t": 8.0,
+   "t": 15.133,
    "testo": "L'istogramma dei volumi, preso dopo l'assestamento, è piccato attorno a V̄. Il peso di ogni volume è e^{−βPV} Q_N(V,T)."
   },
   {
-   "t": 16.6,
+   "t": 23.733,
    "testo": "L'insieme NPT somma i canonici di tutti i volumi con peso e^{−βPV}. Il punto di sella in V̄ impone che la pressione del gas eguagli P, e dà l'energia libera di Gibbs G = PV̄ + A(V̄)."
   }
  ]
