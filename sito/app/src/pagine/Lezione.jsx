@@ -19,7 +19,7 @@ const media = s => s.blocchi
   .map(b => `${b.t}:${b.nome}`);
 
 export default function Lezione({ slug }) {
-  const { indice, apri, destinazione } = useApp();
+  const { indice, apri, apriPdf, destinazione } = useApp();
   const { dati: art } = useDati(slug);
   const largo = useLargo();
   const riduci = useRiduci();
@@ -97,7 +97,11 @@ export default function Lezione({ slug }) {
     const a = e.target.closest("a[href]");
     if (!a) return;
     const href = a.getAttribute("href");
-    if (href.startsWith("#")) {
+    const pagina = href.match(/^dispense\.html#p(\d+)$/);  // versione privata: la citazione apre la pagina nel cassetto
+    if (pagina) {
+      e.preventDefault();
+      apriPdf(+pagina[1]);
+    } else if (href.startsWith("#")) {
       e.preventDefault();
       const id = decodeURIComponent(href.slice(1));
       if (art.sezioni.some(s => s.id === id)) vaiSezione(id);

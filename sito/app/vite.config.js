@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: "./",
   build: {
-    outDir: "../../_app",
+    outDir: process.env.USCITA ? `../../${process.env.USCITA}` : "../../_app",  // USCITA=_app_privato per la versione privata
     emptyOutDir: true,
     assetsDir: "assets",
     cssCodeSplit: false,

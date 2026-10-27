@@ -89,6 +89,7 @@ h1, h2, h3 { text-wrap: balance; }
 .prosa .cit {
   font: italic .8em/1 var(--f-testo); color: rgb(var(--tenue)); white-space: nowrap;
 }
+a.cit { color: rgb(var(--link)); text-decoration: underline dotted rgb(var(--link) / .5); text-underline-offset: 3px; cursor: pointer; }
 .prosa .cit::before { content: "("; }
 .prosa .cit::after { content: ")"; }
 .prosa .divergenza { padding-left: .9em; border-left: 2px dashed rgb(var(--attenzione) / .6); }

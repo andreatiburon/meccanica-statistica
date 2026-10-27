@@ -13,6 +13,12 @@ const durata = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart
 
 export default function Home() {
   const { indice, apri, apriFilm } = useApp();
+  const barra = (
+    <>
+      {indice.privato && <BottoneBarra onClick={() => vai("dispense")}>Dispense</BottoneBarra>}
+      <BottoneBarra onClick={() => vai("mappa")}><Rete size={18} />Mappa</BottoneBarra>
+    </>
+  );
   const [T, setT] = useState(0.08);
   const ultimo = memoria.leggi("ultimo", null);
   const lezUltima = ultimo && indice.percorso.find(l => l.slug === ultimo.slug);
@@ -22,7 +28,7 @@ export default function Home() {
 
   return (
     <>
-      <Barra destra={<BottoneBarra onClick={() => vai("mappa")}><Rete size={18} />Mappa</BottoneBarra>} />
+      <Barra destra={barra} />
       <div className="mx-auto max-w-[1240px] pb-24" style={gutter}>
         {/* copertina: il titolo è un gas, la temperatura la decide chi legge */}
         <section className="grid gap-6 pb-14 pt-10 largo:pt-14">

@@ -2,12 +2,15 @@
 """Prepara i dati del nuovo sito (l'app React in sito/app/) a partire dalla wiki.
 
 Uso:
-  python3 scripts/contenuti.py
+  python3 scripts/contenuti.py            # versione pubblica
+  python3 scripts/contenuti.py --privato  # versione privata: in più le dispense e le citazioni che le aprono
 
 Scrive in sito/app/public/:
   dati/indice.json   percorso, fonti, film e laboratori
   dati/<slug>.json   un articolo diviso in sezioni e blocchi (testo, idea, passaggi, domande, ...)
   video/, katex/     i film e il CSS di KaTeX, copiati
+  dispense/          solo con --privato: PDF anonimo, testo per la ricerca, indice. Senza --privato la cartella
+                     viene cancellata, così le dispense non finiscono mai nella versione pubblica.
 
 Riusa lettura, conversione e formule di scripts/sito.py, così il contenuto resta lo stesso del sito attuale:
 cambia solo la forma, che qui è strutturata in blocchi perché l'app li renda interattivi.
@@ -123,7 +126,8 @@ def sezioni(corpo):
 
 
 class Contenuti:
-    def __init__(self):
+    def __init__(self, privato=False):
+        self.privato = privato
         self.articoli = sito.leggi_articoli()
         self.descrizioni = sito.leggi_descrizioni()
         self.film = sito.leggi_film()
@@ -132,7 +136,7 @@ class Contenuti:
         self.dove_film, self.dove_lab = {}, {}
 
     def converti(self, md):
-        return self.formule.segna(ritocca(pandoc(self.md(md)), privato=False))
+        return self.formule.segna(ritocca(pandoc(self.md(md)), privato=self.privato))
 
     def articolo(self, slug):
         a = self.articoli[slug]
@@ -191,6 +195,7 @@ class Contenuti:
                     "sezioni": [{"id": s["id"], "titolo": s["titolo"]} for s in p["sezioni"]]}
 
         indice = {
+            "privato": self.privato,
             "percorso": [voce(s) for s in PERCORSO if s in pagine],
             "fonti": [voce(s) for s in FONTI if s in pagine],
             "film": {n: {"titolo": d["titolo"], "durata": d["durata"],
@@ -217,8 +222,32 @@ class Contenuti:
         shutil.copy2(KATEX / "katex.min.css", katex / "katex.min.css")
         for f in (KATEX / "fonts").glob("*.woff2"):
             shutil.copy2(f, katex / "fonts" / f.name)
-        print(f"{USCITA.relative_to(RADICE)}/: {len(pagine)} articoli, {len(self.formule.lista)} formule, {len(self.film)} film")
+        disp = USCITA / "dispense"
+        if disp.exists():
+            shutil.rmtree(disp)
+        if self.privato:
+            self.dispense(disp)
+        print(f"{USCITA.relative_to(RADICE)}/: {len(pagine)} articoli, {len(self.formule.lista)} formule, {len(self.film)} film"
+              + (", dispense" if self.privato else ""))
+
+    @staticmethod
+    def dispense(disp):
+        """Solo versione privata: PDF anonimizzato (sito.dispense_anonime), testo per pagina senza le righe
+        con nomi e indirizzi, indice delle dispense da .testo/dispense-ms/_indice.md."""
+        disp.mkdir(parents=True)
+        shutil.copy2(sito.dispense_anonime(), disp / "dispense.pdf")
+        pagine = sorted(sito.TESTO.glob("p*.txt"), key=lambda p: int(p.stem[1:]))
+        testo = ["\n".join(r for r in re.sub(r"[ \t]+", " ", p.read_text()).strip().splitlines() if not sito.ANONIMO.search(r))
+                 for p in pagine]
+        (disp / "testo.json").write_text(json.dumps(testo, ensure_ascii=False))
+        voci = []
+        indice = sito.TESTO / "_indice.md"
+        for r in (indice.read_text().splitlines() if indice.exists() else []):
+            m = re.match(r"^(\s*)- (.+) — p\. (\d+)$", r)
+            if m and not sito.ANONIMO.search(m.group(2)):
+                voci.append({"titolo": m.group(2), "pagina": int(m.group(3)), "livello": len(m.group(1)) // 2})
+        (disp / "indice.json").write_text(json.dumps(voci, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-    Contenuti().costruisci()
+    Contenuti(privato="--privato" in sys.argv).costruisci()
