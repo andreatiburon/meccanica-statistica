@@ -382,8 +382,28 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <figcaption><b>Laboratorio</b><i>Il campo ordina, la temperatura disordina.</i> Un grafico mostra la probabilità dell'orientazione, proporzionale a e<sup>α cos θ</sup>: per α piccolo è quasi piatta, per α grande si schiaccia verso cos θ = 1. L'altro mostra la media ⟨cos θ⟩, la funzione di Langevin, con la retta tratteggiata della legge di Curie. Guarda fin dove la retta resta una buona approssimazione.</figcaption>
 </figure>"""}
 
-# Righe delle dispense tolte dalla versione privata: nomi dei docenti e indirizzi di pagine personali.
-ANONIMO = re.compile(r"(?i)sciortin|crisanti|giardina|grilli|caprara|\bpro(?:f|ff|\ufb00|\u21b5)\.|infn\.it|https?:|www\.")
+# Righe delle dispense tolte dalla versione privata: titoli accademici, indirizzi di pagine personali e cognomi dei
+# docenti. I cognomi non si scrivono in chiaro nel repository pubblico: si confronta l'impronta SHA-256 (primi 16
+# caratteri) di ogni parola, in minuscolo, con quelle di IMPRONTE_COGNOMI.
+IMPRONTE_COGNOMI = {"634e26913e6807b6", "6edd697bb6b3bb09", "aa8768c142fc6e98", "ab44735e3ce11ce5", "e4e041bc0943a140"}
+
+
+class _Anonimo:
+    """Si usa come una regex: search() e finditer() sulle righe di testo."""
+    GENERICI = re.compile(r"(?i)\bpro(?:f|ff|\ufb00|\u21b5)\.|infn\.it|https?:|www\.")
+    PAROLA = re.compile(r"\w+")
+
+    def finditer(self, testo):
+        trovati = list(self.GENERICI.finditer(testo)) + [
+            m for m in self.PAROLA.finditer(testo)
+            if hashlib.sha256(m.group(0).lower().encode()).hexdigest()[:16] in IMPRONTE_COGNOMI]
+        return iter(sorted(trovati, key=lambda m: m.start()))
+
+    def search(self, testo):
+        return next(self.finditer(testo), None)
+
+
+ANONIMO = _Anonimo()
 
 
 def dispense_anonime():

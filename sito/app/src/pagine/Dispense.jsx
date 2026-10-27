@@ -128,7 +128,7 @@ export default function Dispense() {
     <div className="grid gap-4 font-ui">
       <label htmlFor="cerca-dispense" className="grid gap-1.5 text-[0.84rem] text-testo-2">
         Cerca nel testo
-        <input id="cerca-dispense" type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="per esempio Sommerfeld, Bragg, viriale" autoComplete="off"
+        <input id="cerca-dispense" type="search" value={q} onChange={e => setQ(e.target.value)} placeholder="per esempio Bragg, viriale, Debye" autoComplete="off"
           className="h-11 rounded-piccolo border border-filetto bg-fondo px-3 text-[0.95rem] text-testo placeholder:text-tenue focus:border-testo/60 focus:outline-none" />
       </label>
       {risultati && (
