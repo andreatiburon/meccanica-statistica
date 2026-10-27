@@ -20,9 +20,9 @@ Tutti i 42 PDF della pagina web del corso (note delle lezioni, formulario ed esa
 ## Note delle lezioni (parte I)
 | Dispensa | Pagine | Articolo della wiki |
 |---|---|---|
-| Ripasso di probabilità | 3–20 | — |
-| Ripasso di termodinamica | 21–33 | — |
-| Spazio delle fasi (Liouville) | 34–42 | [[meccanica-statistica/corso-e-lezioni]] |
+| Ripasso di probabilità | 3–20 | [[ripasso-di-probabilita]] |
+| Ripasso di termodinamica | 21–33 | [[ripasso-di-termodinamica]] |
+| Spazio delle fasi (Liouville) | 34–42 | [[spazio-delle-fasi-e-liouville]], [[meccanica-statistica/corso-e-lezioni]] |
 | Insieme microcanonico | 43–71 | [[insieme-microcanonico]] |
 | Insieme canonico | 72–101 | [[insieme-canonico]] |
 | Esercizi: densità degli stati $g(\varepsilon)$ | 102–110 | [[insieme-canonico]] |
@@ -45,6 +45,10 @@ Raccolta delle sviste trovate rileggendo le dispense per scrivere le lezioni. Og
 
 | Pagina | Le dispense scrivono | Va letto | Lezione |
 |---|---|---|---|
+| 15 | $\lim_{N\to\infty}P(\dots)<0$ | $=0$ | [[ripasso-di-probabilita]] |
+| 18 | punto di sella con esponente $+\frac N2\lvert f''\rvert(x-x_0)^2$ | segno $-$ | [[ripasso-di-probabilita]] |
+| 20 | Stirling: $1+\frac{1}{12N}+\frac{1}{144N^2}$ | $\frac{1}{288N^2}$ | [[ripasso-di-probabilita]] |
+| 20 | $\delta(x)=\int e^{-izx}dz$ (segnato «FIX») | $\frac{1}{2\pi}\int e^{-izx}dz$ | [[ripasso-di-probabilita]] |
 | 52 | volume nel guscio 0,993 per $D=10$ | 0,933 | [[insieme-microcanonico]] |
 | 67 | picco di Schottky a $\beta\varepsilon\approx0{,}41$ | $k_BT/\varepsilon\approx0{,}42$, cioè $\beta\varepsilon\approx2{,}40$ | [[insieme-microcanonico]] |
 | 78 | $v_{\rm term}=\sqrt{k_BT/m}$ con i valori 1370 e 476 m/s | i valori sono quelli di $\sqrt{3k_BT/m}$, cioè del modulo | [[insieme-canonico]] |

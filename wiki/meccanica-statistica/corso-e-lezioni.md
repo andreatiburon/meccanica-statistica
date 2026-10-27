@@ -46,6 +46,7 @@ Stato del corso di Meccanica Statistica, ricavato dagli appunti manoscritti dell
 - **p. 20:** gli elementi della matrice $M$ nello Jacobiano sono trascritti come nel manoscritto. La forma attesa è $M=\partial(\dot q,\dot p)/\partial(q,p)$, con $\mathrm{Tr}M=0$ per le equazioni di Hamilton: vedi la dispensa, p. 6.
 
 ## Articoli correlati
+- [[ripasso-di-termodinamica]], [[ripasso-di-probabilita]] e [[spazio-delle-fasi-e-liouville]]: le lezioni complete, dalle dispense, sugli argomenti fatti finora.
 - [[insieme-microcanonico]] e [[insieme-canonico]]: gli argomenti delle prossime lezioni, già sviluppati dal quaderno dell'anno scorso.
 - [[appunti-anno-scorso]] e [[dispense-ed-esami]]: le due fonti complete del corso.
 - [[meccanica-quantistica/corso-e-lezioni]]: le particelle identiche si vedono prima qui, in Meccanica Statistica.

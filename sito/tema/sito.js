@@ -1014,6 +1014,85 @@
     });
   }
 
+  /* ---- limite centrale: istogramma di somme di N variabili */
+  function limiteCentrale(box) {
+    const NOMI = ["uniforme", "esponenziale", "Cauchy"], M = 20000;
+    const estrai = [() => Math.random(), () => -Math.log(1 - Math.random()), () => Math.tan(Math.PI * (Math.random() - 0.5))];
+    const MU = [0.5, 1, 0], SIG = [Math.sqrt(1 / 12), 1, Infinity];
+    let chiave = "", campione = [];
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const d = Math.round(val("d")), N = Math.round(val("n"));
+      if (chiave !== d + "-" + N) {
+        chiave = d + "-" + N; campione = new Float64Array(M);
+        for (let m = 0; m < M; m++) {
+          let s = 0; for (let i = 0; i < N; i++) s += estrai[d]();
+          campione[m] = d === 2 ? s / N : (s - N * MU[d]) / (SIG[d] * Math.sqrt(N));
+        }
+      }
+      const x0 = -5, x1 = 5, nb = 60, h = (x1 - x0) / nb, conta = new Array(nb).fill(0);
+      let dentro = 0, s2 = 0, nn = 0;
+      for (const v of campione) { if (v >= x0 && v < x1) conta[Math.floor((v - x0) / h)]++; if (Math.abs(v) < 1) dentro++; if (Math.abs(v) < 50) { s2 += v * v; nn++; } }
+      const dens = conta.map(c => c / (M * h));
+      const teoria = d === 2 ? x => 1 / (Math.PI * (1 + x * x)) : x => Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI);
+      const cima = Math.max(0.45, ...dens) * 1.1;
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0, x1, y0: 0, y1: cima, tx: [-4, -2, 0, 2, 4], ty: [0, 0.2, 0.4], ex: d === 2 ? "media Y/N" : "somma standardizzata T", ey: "densità di probabilità" });
+      const { ctx } = G;
+      ctx.fillStyle = "rgba(242,149,99,.45)";
+      dens.forEach((v, i) => { const xa = p.X(x0 + i * h) + 0.5, xb = p.X(x0 + (i + 1) * h) - 0.5; ctx.fillRect(xa, p.Y(v), xb - xa, p.Y(0) - p.Y(v)); });
+      p.curva(teoria, COL.oro, 2.4);
+      if (d === 2) p.curva(x => Math.exp(-x * x / 2) / Math.sqrt(2 * Math.PI), COL.freddo, 1.4, [6, 5]);
+      scrivi("d", NOMI[d]); scrivi("n", String(N));
+      scrivi("f1", fmt(100 * dentro / M, 1) + " %"); scrivi("f1t", d === 2 ? "50,0 %" : "68,3 %");
+      scrivi("v", d === 2 ? "infinita" : fmt(s2 / nn, 3));
+    });
+  }
+
+  /* ---- trasformata di Legendre: y = e^x e ψ(p) = p − p ln p */
+  function legendre(box) {
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const x0 = val("x"), y0 = Math.exp(x0), p0 = y0, psi0 = y0 - p0 * x0;
+      const [r1, r2] = riquadri(G, 0.5);
+      const p1 = piano(G, r1, { x0: -2.5, x1: 1.6, y0: -1.5, y1: 5, tx: [-2, -1, 0, 1], ty: [0, 2, 4], ex: "x", ey: "y(x) = eˣ e la sua tangente" });
+      p1.verticale(0, COL.filetto, []);
+      p1.curva(x => Math.exp(x), COL.oro);
+      p1.curva(x => y0 + p0 * (x - x0), COL.freddo, 1.6, [6, 5]);
+      p1.punto(x0, y0, COL.ink); p1.punto(0, psi0, COL.caldo, 5.5);
+      p1.scritta(0.08, psi0 - 0.45, "intercetta ψ", COL.caldo);
+      const p2 = piano(G, r2, { x0: 0, x1: 5, y0: -3.2, y1: 1.4, tx: [0, 1, 2, 3, 4, 5], ty: [-3, -2, -1, 0, 1], ex: "p = pendenza", ey: "ψ(p) = p − p ln p" });
+      p2.orizzontale(0, COL.filetto, []);
+      p2.curva(q => (q <= 0 ? 0 : q - q * Math.log(q)), COL.caldo, 2.4, [], 0.001, 5);
+      p2.curva(q => psi0 - x0 * (q - p0), COL.freddo, 1.4, [6, 5], 0.001, 5);
+      p2.punto(p0, psi0, COL.ink);
+      scrivi("x", fmt(x0, 2)); scrivi("y", fmt(y0, 3)); scrivi("p", fmt(p0, 3)); scrivi("psi", fmt(psi0, 3)); scrivi("dpsi", fmt(-Math.log(p0), 2));
+    });
+  }
+
+  /* ---- Liouville: una goccia di condizioni iniziali nel pendolo, H = p²/2 − cos θ */
+  function liouville(box) {
+    const K = 1600, base = [];
+    for (let i = 0; i < K; i++) { const r = 0.28 * Math.sqrt((i + 0.5) / K), a = i * 2.399963; base.push([1.0 + r * Math.cos(a), 0.0 + 0.9 * r * Math.sin(a), r / 0.28]); }
+    const avvolgi = th => th - 2 * Math.PI * Math.floor((th + Math.PI) / (2 * Math.PI));
+    laboratorioPiccolo(box, (G, val, scrivi) => {
+      const T = val("t"), gam = val("g"), dt = 0.02, passi = Math.round(T / dt), smorza = Math.exp(-gam * dt / 2);
+      const p = piano(G, { x: 0, y: 0, w: G.w, h: G.h }, { x0: -Math.PI, x1: Math.PI, y0: -2.6, y1: 2.6, tx: [-3, -2, -1, 0, 1, 2, 3], ty: [-2, -1, 0, 1, 2], ex: "angolo θ", ey: "impulso p" });
+      [-0.6, 0, 0.5, 1, 1.6].forEach(E => {
+        const f = th => 2 * (E + Math.cos(th));
+        p.curva(th => (f(th) >= 0 ? Math.sqrt(f(th)) : NaN), E === 1 ? COL.tenue : COL.filetto, E === 1 ? 1.4 : 1, E === 1 ? [5, 4] : []);
+        p.curva(th => (f(th) >= 0 ? -Math.sqrt(f(th)) : NaN), E === 1 ? COL.tenue : COL.filetto, E === 1 ? 1.4 : 1, E === 1 ? [5, 4] : []);
+      });
+      const { ctx } = G;
+      for (const [th0, p0, c] of base) {
+        let th = th0, pp = p0;
+        for (let s = 0; s < passi; s++) {              // leapfrog, con l'attrito trattato esattamente a metà passo
+          pp *= smorza; pp -= 0.5 * dt * Math.sin(th); th += dt * pp; pp -= 0.5 * dt * Math.sin(th); pp *= smorza;
+        }
+        ctx.fillStyle = termico(c);
+        ctx.fillRect(p.X(avvolgi(th)) - 1, p.Y(pp) - 1, 2.2, 2.2);
+      }
+      scrivi("t", fmt(T, 1)); scrivi("g", fmt(gam, 2)); scrivi("a", fmt(100 * Math.exp(-gam * T), 1) + " %");
+    });
+  }
+
   /* ================= pannello laterale con la pagina originale (versione privata) ================= */
   function cassetto() {
     const box = document.querySelector(".cassetto");
@@ -1059,7 +1138,7 @@
 
   /* ================= avvio ================= */
   cassetto();
-  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio, fermi, bose, planck, solidi };
+  const avvii = { sciame, gas, ising, mappa, dispense, guscio, langevin, langmuir, vdw, "campo-medio": campoMedio, fermi, bose, planck, solidi, "limite-centrale": limiteCentrale, legendre, liouville };
   document.querySelectorAll("[data-lab]").forEach(el => {
     try { avvii[el.dataset.lab]?.(el); } catch (err) { console.error(err); }
   });

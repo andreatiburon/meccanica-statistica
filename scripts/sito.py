@@ -35,13 +35,15 @@ TESTO = RADICE / ".testo" / "dispense-ms"
 
 # Ordine del corso e fonti, come in wiki/meccanica-statistica/indice_wiki.md
 PERCORSO = [
+    "ripasso-di-probabilita", "ripasso-di-termodinamica", "spazio-delle-fasi-e-liouville",
     "insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt",
     "gas-reali-viriale-e-van-der-waals", "modello-di-ising-e-campo-medio",
     "gas-quantistici-ideali", "corpo-nero-e-solidi",
 ]
 FONTI = ["corso-e-lezioni", "appunti-anno-scorso", "dispense-ed-esami"]
 PAGINE_DISPENSE = {
-    "insieme-microcanonico": "pp. 43–71", "insieme-canonico": "pp. 72–117",
+    "ripasso-di-probabilita": "pp. 3–20", "ripasso-di-termodinamica": "pp. 21–33",
+    "spazio-delle-fasi-e-liouville": "pp. 34–42", "insieme-microcanonico": "pp. 43–71", "insieme-canonico": "pp. 72–117",
     "insieme-gran-canonico-e-npt": "pp. 118–131", "gas-reali-viriale-e-van-der-waals": "pp. 132–143",
     "modello-di-ising-e-campo-medio": "pp. 143–169", "gas-quantistici-ideali": "pp. 170–206",
     "corpo-nero-e-solidi": "pp. 207–219",
@@ -63,7 +65,7 @@ FILM_SEZIONI = {
 }
 FILM_IN_HOME = ["gas-maxwell", "ising", "bose-einstein", "planck"]
 # Articoli già riscritti come lezioni complete (riassunto chiuso in cima, elementi interattivi).
-LEZIONI = {"insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt",
+LEZIONI = {"ripasso-di-probabilita", "ripasso-di-termodinamica", "spazio-delle-fasi-e-liouville", "insieme-microcanonico", "insieme-canonico", "insieme-gran-canonico-e-npt",
            "gas-reali-viriale-e-van-der-waals", "modello-di-ising-e-campo-medio",
            "gas-quantistici-ideali", "corpo-nero-e-solidi"}
 LABORATORI = {
@@ -71,7 +73,8 @@ LABORATORI = {
     "modello-di-ising-e-campo-medio": ("interfacce", "ising"),
 }
 ETICHETTE_MAPPA = {
-    "insieme-microcanonico": "Microcanonico", "insieme-canonico": "Canonico",
+    "ripasso-di-probabilita": "Probabilità", "ripasso-di-termodinamica": "Termodinamica",
+    "spazio-delle-fasi-e-liouville": "Spazio delle fasi", "insieme-microcanonico": "Microcanonico", "insieme-canonico": "Canonico",
     "insieme-gran-canonico-e-npt": "Gran canonico e NPT", "gas-reali-viriale-e-van-der-waals": "Gas reali",
     "modello-di-ising-e-campo-medio": "Ising e campo medio", "gas-quantistici-ideali": "Gas quantistici",
     "corpo-nero-e-solidi": "Corpo nero e solidi", "corso-e-lezioni": "Corso e lezioni",
@@ -245,7 +248,8 @@ def elementi_lezione(frammento):
                 f'<div class="soluzione-corpo">{soluzione}</div></details></aside>')
 
     def laboratorio(attr, interno):
-        return LAB_PICCOLI.get(attr.get("tipo"), "")
+        tipo = attr.get("tipo")
+        return LAB_PICCOLI.get(tipo, "").replace("<figure ", f'<figure id="lab-{tipo}" ', 1)
 
     for classe, fn in (("passaggi", passaggi), ("domanda", domanda), ("esercizio", esercizio),
                        ("lab-segnaposto", laboratorio)):
@@ -335,6 +339,37 @@ LAB_PICCOLI = {"guscio": """<figure class="lab lab-guscio" data-lab="guscio">
 <div class="comandi"><button type="button" data-imposta='{"t": 1}'>T = θ</button><button type="button" data-imposta='{"t": 0.1}'>T = θ/10</button><button type="button" data-imposta='{"t": 0.03}'>molto freddo</button></div>
 </div></div>
 <figcaption><b>Laboratorio</b><i>Perché i solidi freddi non assorbono calore.</i> Nel primo grafico il calore specifico di Einstein (azzurro) e di Debye (giallo), con la stessa temperatura caratteristica θ, contro il valore classico di Dulong-Petit. Nel secondo, in scala logaritmica, si vede la differenza vera: Einstein crolla esponenzialmente, Debye scende come T³ (la retta arancio tratteggiata). Le onde sonore lunghe restano attive a qualunque temperatura.</figcaption>
+</figure>""",
+"limite-centrale": """<figure class="lab lab-largo lab-uno" data-lab="limite-centrale">
+<div class="lab-banco">
+<canvas aria-label="Istogramma della somma di N variabili casuali confrontato con la gaussiana"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>distribuzione di partenza</span><output data-v="d">uniforme</output></label><input type="range" min="0" max="2" step="1" value="1" data-c="d" aria-label="Distribuzione di partenza: uniforme, esponenziale o Cauchy"></div>
+<div class="cursore"><label><span>numero di variabili sommate N</span><output data-v="n">1</output></label><input type="range" min="1" max="64" step="1" value="1" data-c="n" aria-label="Numero di variabili sommate"></div>
+<dl class="misure"><dt>frazione entro ±1</dt><dd data-v="f1">–</dd><dt>valore teorico</dt><dd data-v="f1t">–</dd><dt>varianza del campione</dt><dd data-v="v">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"d": 1, "n": 1}'>un'esponenziale</button><button type="button" data-imposta='{"d": 1, "n": 30}'>trenta esponenziali</button><button type="button" data-imposta='{"d": 0, "n": 3}'>tre uniformi</button><button type="button" data-imposta='{"d": 2, "n": 50}'>cinquanta Cauchy</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>Perché la gaussiana è ovunque.</i> Ventimila somme di N variabili estratte a caso, centrate e divise per σ√N, contro la gaussiana standard in giallo. Parti da un'esponenziale, asimmetrica, e aumenta N: la forma si raddrizza in fretta. Con la Cauchy l'istogramma è quello della media Y/N, e non cambia mai: la curva gialla è la Cauchy stessa, quella tratteggiata la gaussiana che non arriva.</figcaption>
+</figure>""",
+"legendre": """<figure class="lab lab-largo" data-lab="legendre">
+<div class="lab-banco">
+<canvas aria-label="La funzione esponenziale con la sua tangente, e la sua trasformata di Legendre"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>punto di tangenza x</span><output data-v="x">0</output></label><input type="range" min="-2" max="1.5" step="0.01" value="0.5" data-c="x" aria-label="Ascissa del punto di tangenza"></div>
+<dl class="misure"><dt>y(x)</dt><dd data-v="y">–</dd><dt>pendenza p = y′(x)</dt><dd data-v="p">–</dd><dt>intercetta ψ = y − px</dt><dd data-v="psi">–</dd><dt>−dψ/dp, che ridà x</dt><dd data-v="dpsi">–</dd></dl>
+</div></div>
+<figcaption><b>Laboratorio</b><i>La stessa curva, descritta con le tangenti.</i> Il primo grafico mostra y = eˣ con la retta tangente nel punto scelto: l'intercetta con l'asse verticale (arancio) è ψ. Il secondo mostra la curva ψ(p) = p − p ln p, una nuova funzione della sola pendenza; la sua tangente ha pendenza −x. Muovi il punto e guarda le due descrizioni muoversi insieme, senza perdere informazione.</figcaption>
+</figure>""",
+"liouville": """<figure class="lab lab-largo lab-uno" data-lab="liouville">
+<div class="lab-banco">
+<canvas aria-label="Una goccia di condizioni iniziali che si deforma nello spazio delle fasi del pendolo"></canvas>
+<div class="lab-letture">
+<div class="cursore"><label><span>tempo</span><output data-v="t">0</output></label><input type="range" min="0" max="40" step="0.1" value="0" data-c="t" aria-label="Tempo"></div>
+<div class="cursore"><label><span>attrito γ</span><output data-v="g">0</output></label><input type="range" min="0" max="0.3" step="0.01" value="0" data-c="g" aria-label="Coefficiente di attrito"></div>
+<dl class="misure"><dt>area della goccia, rispetto all'inizio</dt><dd data-v="a">–</dd></dl>
+<div class="comandi"><button type="button" data-imposta='{"t": 6, "g": 0}'>poco dopo</button><button type="button" data-imposta='{"t": 40, "g": 0}'>molto dopo</button><button type="button" data-imposta='{"t": 20, "g": 0.15}'>con attrito</button></div>
+</div></div>
+<figcaption><b>Laboratorio</b><i>L'inchiostro nell'acqua.</i> Milleseicento condizioni iniziali vicine di un pendolo, colorate dal centro al bordo, evolvono con le equazioni di Hamilton. Le linee sono curve di energia costante; quella tratteggiata è la separatrice. La goccia si stira in un filamento sempre più lungo e sottile, ma la sua area resta la stessa: è il teorema di Liouville. Con l'attrito il sistema non è più hamiltoniano, e la goccia si restringe fino al punto di riposo.</figcaption>
 </figure>""",
 "langevin": """<figure class="lab lab-largo" data-lab="langevin">
 <div class="lab-banco">
@@ -671,7 +706,7 @@ class Sito:
                     if self.privato else "")
         corpo = f"""<section class="copertina" data-lab="sciame" aria-labelledby="titolo-home">
 <div class="copertina-in">
-<p class="occhiello">Wiki di studio · {len(PERCORSO)} argomenti · {n_film} film · 2 laboratori</p>
+<p class="occhiello">Wiki di studio · {len(PERCORSO)} lezioni · {n_film} film · {2 + len(LAB_PICCOLI)} laboratori</p>
 <h1 id="titolo-home" class="titolo-home">Meccanica <em>Statistica</em></h1>
 <canvas class="sciame" aria-hidden="true"></canvas>
 <div class="copertina-piede">
@@ -764,14 +799,24 @@ class Sito:
                                                    "Tutti i film interattivi della wiki di meccanica statistica.")
 
     # ---- laboratorio e mappa
+    def elenco_lab_piccoli(self):
+        voci = []
+        for slug in PERCORSO:
+            for tipo in re.findall(r'lab-segnaposto tipo="([^"]+)"', self.articoli[slug]["corpo_md"]):
+                titolo = re.search(r"<i>(.*?)</i>", LAB_PICCOLI[tipo]).group(1)
+                voci.append(f'<li><a href="{slug}.html#lab-{tipo}"><b>{titolo}</b><span>{esc(self.articoli[slug]["breve"])}</span></a></li>')
+        return "".join(voci)
+
     def laboratorio(self):
         corpo = f"""<div class="pagina"><main class="home">
 <header class="testa-pagina"><p class="occhiello">Simulazioni nel browser</p>
 <h1 class="titolo-pagina">Laboratorio</h1>
 {filetto("laboratorio", n=160)}
-<p class="home-p">Due esperimenti da manovrare. Prima prevedi che cosa succederà, poi muovi i comandi e controlla. Gli stessi laboratori sono anche dentro gli articoli <a class="wl" href="insieme-canonico.html">Insieme canonico</a> e <a class="wl" href="modello-di-ising-e-campo-medio.html">Modello di Ising e campo medio</a>.</p></header>
+<p class="home-p">Due simulazioni da manovrare. Prima prevedi che cosa succederà, poi muovi i comandi e controlla. Le stesse simulazioni sono anche dentro gli articoli <a class="wl" href="insieme-canonico.html">Insieme canonico</a> e <a class="wl" href="modello-di-ising-e-campo-medio.html">Modello di Ising e campo medio</a>; sotto ci sono i laboratori più piccoli che accompagnano le lezioni.</p></header>
 {self.lab_gas()}
 {self.lab_ising()}
+<h2 class="titolo-sezione">Laboratori dentro le lezioni</h2>
+<ol class="elenco-lab">{self.elenco_lab_piccoli()}</ol>
 </main></div>"""
         self.pagine["laboratorio.html"] = self.pagina("Laboratorio · Meccanica Statistica", corpo, "Laboratorio",
                                                       "Simulazioni dal vivo: gas di dischi rigidi e modello di Ising 2D.")
