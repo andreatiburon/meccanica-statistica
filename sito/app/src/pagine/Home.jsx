@@ -83,7 +83,7 @@ export default function Home() {
           ))}
         </div>
 
-        <Titoletto titolo="Laboratori" sotto="Simulazioni da manovrare: prima prevedi, poi muovi i comandi e controlla. Nel prototipo ne sono già stati rifatti due." />
+        <Titoletto titolo="Laboratori" sotto="Simulazioni da manovrare: prima prevedi che cosa succederà, poi muovi i comandi e controlla. Ognuna si apre nel punto della lezione in cui serve." />
         <ul className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 largo:grid-cols-3">
           {Object.entries(indice.lab).filter(([, x]) => x.slug).sort((a, b) => ordine(indice, a[1]) - ordine(indice, b[1])).map(([nome, x]) => {
             const pronto = !!LABORATORI[nome];

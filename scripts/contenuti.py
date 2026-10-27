@@ -27,22 +27,22 @@ from sito import (FILM_SEZIONI, FILM_TESTA, FONTI, KATEX, LABORATORI, LEZIONI, P
 
 USCITA = RADICE / "sito" / "app" / "public"
 
-# Laboratori dell'app: nome -> (titolo, sottotitolo). Quelli non ancora portati in React restano segnaposti.
+# Laboratori dell'app: nome -> (titolo, sottotitolo), come nei componenti di sito/app/src/lab/.
 LAB = {
     "gas": ("Un gas che si termalizza", "300 dischi rigidi con urti elastici"),
     "langevin": ("Il campo ordina, la temperatura disordina", "Dipoli in un campo: funzione di Langevin e legge di Curie"),
     "ising": ("Ising con il termostato in mano", "Metropolis su un reticolo 128 × 128"),
-    "guscio": ("Il guscio di energia", "Volume della sfera in molte dimensioni"),
-    "langmuir": ("Adsorbimento", "Isoterma di Langmuir"),
-    "vdw": ("Isoterme di van der Waals", "Costruzione di Maxwell"),
-    "campo-medio": ("Campo medio", "Soluzione grafica dell'autoconsistenza"),
-    "fermi": ("Gas di Fermi", "Occupazioni e mare di Fermi"),
-    "bose": ("Gas di Bose", "Condensazione"),
-    "planck": ("Corpo nero", "Spettro di Planck"),
-    "solidi": ("Calore specifico dei solidi", "Einstein e Debye"),
-    "limite-centrale": ("Limite centrale", "Somme di variabili aleatorie"),
-    "legendre": ("Trasformata di Legendre", "Dalla curva alle tangenti"),
-    "liouville": ("Teorema di Liouville", "Il volume nello spazio delle fasi si conserva"),
+    "guscio": ("Il volume sta nella buccia", "Il volume di una sfera in molte dimensioni"),
+    "langmuir": ("Riempire una superficie", "L'isoterma di Langmuir"),
+    "vdw": ("Aree uguali", "Van der Waals e la costruzione di Maxwell"),
+    "campo-medio": ("La magnetizzazione che si sostiene da sola", "Il campo medio di Bragg-Williams"),
+    "fermi": ("Il mare di Fermi si sfuma", "Il gas di Fermi a temperatura finita"),
+    "bose": ("Il parcheggio pieno", "La condensazione di Bose-Einstein"),
+    "planck": ("Il biglietto d'ingresso", "Lo spettro di corpo nero"),
+    "solidi": ("Perché i solidi freddi non assorbono calore", "Einstein, Debye e Dulong-Petit"),
+    "limite-centrale": ("Perché la gaussiana è ovunque", "Il teorema del limite centrale"),
+    "legendre": ("La stessa curva, descritta con le tangenti", "La trasformata di Legendre"),
+    "liouville": ("L'inchiostro nell'acqua", "Il teorema di Liouville"),
 }
 SPECIALI = ("idea", "attenzione", "passaggi", "domanda", "risposta", "esercizio", "soluzione", "lab-segnaposto")
 APERTURA = re.compile(r'<div class="(%s)"([^>]*)>' % "|".join(re.escape(c) for c in SPECIALI))

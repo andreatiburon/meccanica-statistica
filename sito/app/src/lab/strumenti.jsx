@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
-import { useColori, useRiduci } from "../base.js";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { fmt, useColori, useRiduci } from "../base.js";
 import { Gioca, Pausa } from "../componenti/icone.jsx";
 
 /* ---------------------------------------------------------------- cornice comune dei laboratori
@@ -167,4 +167,66 @@ export function gauss() {
   while (!u) u = Math.random();
   while (!v) v = Math.random();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/* ---------------------------------------------------------------- laboratori a grafico
+   La forma comune dei laboratori «piccoli»: qualche cursore, qualche preimpostazione, un grafico che si
+   ridisegna a ogni cambio e le letture numeriche. calcola(val) fa i conti una volta sola per stato
+   (radici, integrali); disegna e letture ne usano il risultato. */
+export function LabGrafico({ nome, titolo, sotto, legenda, parametri, preset = [], calcola = () => ({}), disegna, letture, doppio = false, etichettaTela }) {
+  const [val, setVal] = useState(() => Object.fromEntries(parametri.map(p => [p.id, p.iniziale])));
+  const dati = useMemo(() => calcola(val), [val]); // eslint-disable-line react-hooks/exhaustive-deps
+  const tela = useTela((ctx, w, h, C) => {
+    ctx.fillStyle = C.schermo; ctx.fillRect(0, 0, w, h);
+    ctx.font = `12px ${C.mono}`;
+    disegna(ctx, w, h, C, val, dati);
+  }, [val, dati]);
+  const attivo = v => Object.entries(v).every(([k, x]) => Math.abs(val[k] - x) < 1e-9);
+  return (
+    <Cornice titolo={titolo} sotto={sotto} legenda={legenda}
+      letture={letture(val, dati).map(([n, v, c]) => <Lettura key={n} nome={n} valore={v} colore={c} />)}
+      comandi={<>
+        {parametri.map(p => (
+          <Cursore key={p.id} id={`${nome}-${p.id}`} etichetta={p.etichetta} valore={val[p.id]} testo={p.testo?.(val[p.id], val)}
+            min={p.min} max={p.max} step={p.step} onChange={x => setVal(v => ({ ...v, [p.id]: x }))} />
+        ))}
+        {preset.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {preset.map(([etichetta, v]) => <Pulsante key={etichetta} attivo={attivo(v)} onClick={() => setVal(x => ({ ...x, ...v }))}>{etichetta}</Pulsante>)}
+          </div>
+        )}
+      </>}>
+      <canvas ref={tela} className={`${doppio ? "tela-doppia" : "tela"} w-full rounded-piccolo`} aria-label={etichettaTela ?? titolo} />
+    </Cornice>
+  );
+}
+
+// Due riquadri affiancati quando c'è spazio, uno sopra l'altro quando il laboratorio è stretto.
+export function riquadri(w, h, quota = 0.55) {
+  return w >= 520 ? [{ x: 0, y: 0, w: w * quota, h }, { x: w * quota, y: 0, w: w * (1 - quota), h }]
+    : [{ x: 0, y: 0, w, h: h / 2 }, { x: 0, y: h / 2, w, h: h / 2 }];
+}
+
+// Numeri leggibili: 0,034 oppure 2,5·10⁻⁷.
+const apice = n => String(n).replace("-", "⁻").replace(/\d/g, c => "⁰¹²³⁴⁵⁶⁷⁸⁹"[c]);
+export function sci(x) {
+  if (!isFinite(x)) return "∞";
+  if (x >= 1e-3 && x < 1e4) return x.toLocaleString("it-IT", { maximumSignificantDigits: 3 });
+  const e = Math.floor(Math.log10(x)), m = x / 10 ** e;
+  return `${fmt(m, 1)}·10${apice(e)}`;
+}
+
+// Integrale di Simpson su [a, b] con n intervalli (n pari).
+export function simpson(f, a, b, n = 400) {
+  const h = (b - a) / n;
+  let s = 0;
+  for (let k = 0; k <= n; k++) s += f(a + k * h) * (k === 0 || k === n ? 1 : k % 2 ? 4 : 2);
+  return s * h / 3;
+}
+
+// Bisezione di g su [a, b] (g cambia segno).
+export function bisezione(g, a, b, passi = 80) {
+  let ga = g(a);
+  for (let k = 0; k < passi; k++) { const c = (a + b) / 2, gc = g(c); if ((gc > 0) === (ga > 0)) { a = c; ga = gc; } else b = c; }
+  return (a + b) / 2;
 }
