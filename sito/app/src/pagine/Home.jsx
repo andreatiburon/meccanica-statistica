@@ -1,10 +1,10 @@
 import { motion } from "framer-motion";
 import { memo, useState } from "react";
 import { useApp } from "../App.jsx";
-import { carica, fmt, memoria } from "../base.js";
-import Barra from "../componenti/Barra.jsx";
+import { carica, fmt, memoria, vai } from "../base.js";
+import Barra, { BottoneBarra } from "../componenti/Barra.jsx";
 import { Prosa } from "../componenti/Blocchi.jsx";
-import { Avanti, Film as IconaFilm, Gioca, Lab as IconaLab } from "../componenti/icone.jsx";
+import { Avanti, Film as IconaFilm, Gioca, Lab as IconaLab, Rete } from "../componenti/icone.jsx";
 import Titolo from "../componenti/Titolo.jsx";
 import LABORATORI from "../lab/index.js";
 
@@ -22,7 +22,7 @@ export default function Home() {
 
   return (
     <>
-      <Barra />
+      <Barra destra={<BottoneBarra onClick={() => vai("mappa")}><Rete size={18} />Mappa</BottoneBarra>} />
       <div className="mx-auto max-w-[1240px] pb-24" style={gutter}>
         {/* copertina: il titolo è un gas, la temperatura la decide chi legge */}
         <section className="grid gap-6 pb-14 pt-10 largo:pt-14">

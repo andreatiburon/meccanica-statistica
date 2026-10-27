@@ -6,7 +6,7 @@ import Barra, { BottoneBarra } from "../componenti/Barra.jsx";
 import Blocchi, { Prosa } from "../componenti/Blocchi.jsx";
 import { LezioneCtx } from "../componenti/contesto.js";
 import Film from "../componenti/Film.jsx";
-import { Avanti, Chiudi, Elenco, Film as IconaFilm, Formula, Giu, Indietro, Lab as IconaLab, Spunta, Su } from "../componenti/icone.jsx";
+import { Avanti, Chiudi, Elenco, Film as IconaFilm, Formula, Giu, Indietro, Lab as IconaLab, Spunta, Su, Rete } from "../componenti/icone.jsx";
 import LABORATORI from "../lab/index.js";
 
 /* Una lezione, pensata per l'iPad 11" dentro l'Artifact.
@@ -253,6 +253,10 @@ function Coda({ art, prec, succ, apri }) {
         <div className="grid gap-2">
           <p className="m-0 font-ui text-[0.84rem] font-semibold text-tenue">Articoli correlati</p>
           <Prosa html={art.correlati} className="text-[0.92em]" />
+          <button type="button" onClick={() => apri("mappa", art.slug)}
+            className="inline-flex h-10 items-center gap-2 justify-self-start rounded-full border border-filetto px-4 font-ui text-[0.86rem] text-testo-2 hover:bg-testo/5">
+            <Rete size={16} />I collegamenti di questa lezione nella mappa
+          </button>
         </div>
       )}
       <div className="grid gap-3 sm:grid-cols-2">

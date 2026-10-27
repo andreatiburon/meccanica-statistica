@@ -197,6 +197,8 @@ class Contenuti:
                          "passi": [{"t": p["t"], "html": didascalia(p["testo"])} for p in d["passi"]],
                          "slug": self.dove_film.get(n, (None, None))[0], "sezione": self.dove_film.get(n, (None, None))[1]}
                      for n, d in self.film.items()},
+            # grafo dei wikilink: lo stesso della pagina «Mappa» del sito attuale
+            "mappa": sito.Sito.dati_mappa(self),
             "lab": {n: {"titolo": t, "sottotitolo": st, "slug": self.dove_lab.get(n, (None, None))[0],
                         "sezione": self.dove_lab.get(n, (None, None))[1]} for n, (t, st) in LAB.items()},
         }

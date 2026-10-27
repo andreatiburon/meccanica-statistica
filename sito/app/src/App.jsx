@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRe
 import { Colori, carica, leggiColori, useDati, useRotta, vai } from "./base.js";
 import Home from "./pagine/Home.jsx";
 import Lezione from "./pagine/Lezione.jsx";
+import Mappa from "./pagine/Mappa.jsx";
 import FilmGrande from "./componenti/FilmGrande.jsx";
 
 // Contesto dell'app: indice dei contenuti, film aperto a tutto schermo, destinazione dentro una lezione.
@@ -28,18 +29,19 @@ export default function App() {
   useLayoutEffect(() => setColori(leggiColori()), []);
 
   const lezioni = useMemo(() => indice ? [...indice.percorso, ...indice.fonti] : [], [indice]);
-  const pagina = rotta !== "home" && lezioni.some(l => l.slug === rotta) ? rotta : "home";
+  // pagine: #home, #mappa e una lezione per slug; tutto il resto riporta alla home
+  const pagina = rotta === "mappa" || lezioni.some(l => l.slug === rotta) ? rotta : "home";
 
   const apri = useCallback((slug, sezione = null) => {
     scorrimenti.current[pagina] = scrollY;
     destinazione.current = sezione ? { slug, sezione } : null;
-    carica(slug).catch(() => {});
+    if (lezioni.some(l => l.slug === slug)) carica(slug).catch(() => {});
     vai(slug);
-  }, [pagina]);
+  }, [pagina, lezioni]);
 
   // Quando la nuova pagina entra, si parte dall'alto (o da dove si era lasciata la home).
   const entrata = useCallback(() => {
-    if (destinazione.current?.slug === pagina) return;
+    if (destinazione.current?.slug === pagina && pagina !== "mappa") return;  // la lezione scorre da sé alla sezione
     scrollTo({ top: pagina === "home" ? scorrimenti.current.home || 0 : 0, behavior: "instant" });
   }, [pagina]);
 
@@ -54,7 +56,7 @@ export default function App() {
           {indice && colori && (
             <AnimatePresence mode="wait" initial={false} onExitComplete={entrata}>
               <motion.main key={pagina} variants={PAGINA} initial="iniziale" animate="visibile" exit="uscita">
-                {pagina === "home" ? <Home /> : <Lezione slug={pagina} />}
+                {pagina === "home" ? <Home /> : pagina === "mappa" ? <Mappa /> : <Lezione slug={pagina} />}
               </motion.main>
             </AnimatePresence>
           )}

@@ -17,5 +17,6 @@ export const Film = p => <Icona {...p}><rect x="3" y="5" width="18" height="14" 
 export const Lab = p => <Icona {...p}><path d="M9 3h6M10 3v6l-5.5 9.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3" /><path d="M7.5 15h9" /></Icona>;
 export const Formula = p => <Icona {...p}><path d="M14 4h-2.5a2 2 0 0 0-2 1.8L8 19.2A2 2 0 0 1 6 21H4.5M6 11h7M15 13l5 6M20 13l-5 6" /></Icona>;
 export const Casa = p => <Icona {...p}><path d="M4 11l8-7 8 7M6 9.5V20h12V9.5" /></Icona>;
+export const Rete = p => <Icona {...p}><circle cx="5" cy="6" r="2" /><circle cx="18" cy="5" r="2" /><circle cx="12" cy="13" r="2.4" /><circle cx="6" cy="19" r="2" /><circle cx="19" cy="18" r="2" /><path d="M6.8 7.2l3.6 4M16.4 6.4l-3.2 4.8M10.4 14.6l-3 3M13.9 14.3l3.6 2.7" /></Icona>;
 export const Spunta = p => <Icona {...p}><path d="M5 12.5l4.5 4.5L19 7.5" /></Icona>;
 export const Ingrandisci = p => <Icona {...p}><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></Icona>;
